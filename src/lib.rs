@@ -169,6 +169,7 @@ impl Curriculum {
         // TODO replace with first page
         output.push(self.personal_data.to_latex());
         output.push("\n\\begin{document}\n".into());
+        output.push("\\maketitle".into());
 
         output.push("\\section{Education}".into());
         for edu in &self.education {
@@ -250,6 +251,8 @@ impl PersonalData {
         lines.push(format!("\\firstname{{\\LARGE {first_name}}}"));
         if let Some(last_name) = names.get(1) {
             lines.push(format!("\\familyname{{\\LARGE {last_name}}}"));
+        } else {
+            lines.push(format!("\\familyname{{}}"));
         }
         if let Some(title) = &self.title {
             lines.push(format!("\\title{{{}}}", title));
