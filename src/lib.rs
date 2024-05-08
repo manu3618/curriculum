@@ -255,6 +255,32 @@ impl Curriculum {
         Ok(output.join("\n"))
     }
 
+    #[cfg(feature = "pdf")]
+    /// Generate pdf
+    /// if path is not None, write file
+    /// return the content of the pdf file
+    pub fn to_pdf(&self, path: Option<&Path>) -> Result<Vec<u8>> {
+        let tex_data = &self.to_latex()?;
+        if let Some(tex_path) = path {
+            let tex_path = tex_path.with_extension("tex");
+            println!(
+                "writing to {}",
+                tex_path.to_str().expect("path should be valid")
+            );
+            fs::write(tex_path, tex_data)?;
+        }
+        let pdf_data: Vec<u8> = tectonic::latex_to_pdf(tex_data).unwrap();
+        if let Some(pdf_path) = path {
+            let pdf_path = pdf_path.with_extension("pdf");
+            println!(
+                "writing to {}",
+                pdf_path.to_str().expect("path should be valid")
+            );
+            fs::write(pdf_path, pdf_data.clone())?;
+        }
+        Ok(pdf_data)
+    }
+
     /// Get skills from entries
     /// {category: {skill: duration}}
     fn get_skills(&self) -> HashMap<&str, HashMap<String, CVDuration>> {

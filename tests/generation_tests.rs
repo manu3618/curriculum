@@ -52,3 +52,22 @@ fn json_generation() -> Result<()> {
     assert!(treated > 0);
     Ok(())
 }
+
+#[test]
+#[cfg(feature = "pdf")]
+fn pdf_generation() -> Result<()> {
+    for entry in Path::new("./tests").read_dir().expect("read_dir failed?") {
+        if entry.as_ref().unwrap().path().extension().unwrap() != "json" {
+            eprintln!("ignoring {:?}", entry.as_ref());
+            continue;
+        }
+        let out_path = Path::new("/tmp").join(entry.as_ref().unwrap().file_name());
+        let content = fs::read_to_string(entry.unwrap().path())?;
+        let cv: curriculum::Curriculum = serde_json::from_str(&content)?;
+        let pdf_data = cv.to_pdf(None);
+        assert!(pdf_data.is_ok());
+        let pdf_data = cv.to_pdf(Some(&out_path));
+        assert!(pdf_data.is_ok());
+    }
+    Ok(())
+}
