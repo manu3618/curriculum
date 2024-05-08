@@ -2,7 +2,9 @@
     "personal data": {
         "name": "Jessica Goodwin",
         "title": "Environmental manager",
-        "mobile": ["525-450-5504x921"]
+        "mobile": [
+            "525-450-5504x921"
+        ]
     },
     "education": [
         {
@@ -22,7 +24,7 @@
             "institution": "Jenkins-Durham"
         }
     ],
-    "experience": [
+    "experiences": [
         {
             "start": "1984-08-28",
             "end": "1998-11-19",
@@ -37,7 +39,13 @@
             "start": "1974-05-07",
             "end": "2009-06-16",
             "institution": "Smith-Long",
-            "description": "some random description"
+            "description": {
+                "context": "some random description",
+                "ci": [
+                    "git",
+                    "gitlab"
+                ]
+            }
         },
         {
             "start": "2007-03-08",
@@ -54,7 +62,9 @@
             "end": "1990-12-17",
             "institution": "Sparks Inc",
             "city": "South Margaretville",
-            "description": "some random description"
+            "description": {
+                "context": "some random description"
+            }
         },
         {
             "start": "2004-04-09",
@@ -64,14 +74,19 @@
         {
             "start": "2002-03-18",
             "end": "2007-06-06",
-            "institution": "Smith-Terry",
-            "description": "some random description"
+            "institution": "Smith-Terry"
         },
         {
             "start": "1974-07-01",
             "end": "2021-10-20",
             "institution": "Mejia, Gregory and Villarreal",
-            "description": "some random description"
+            "description": {
+                "context": "some random description",
+                "ci": [
+                    "git",
+                    "github"
+                ]
+            }
         },
         {
             "start": "2010-05-28",

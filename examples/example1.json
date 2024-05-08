@@ -2,7 +2,10 @@
     "personal data": {
         "name": "Bethany Johnson",
         "title": "Librarian, public",
-        "mobile": ["977-831-3487x35289", "977-831-3487x35289"]
+        "mobile": [
+            "977-831-3487x35289",
+            "977-831-3487x35289"
+        ]
     },
     "education": [
         {
@@ -11,7 +14,31 @@
             "degree": "A good level",
             "institution": "Bennett-Wallace",
             "city": "Lake Whitneyborough",
-            "description": "some random description"
+            "description": {
+                "context": "osef",
+                "programming": [
+                    "python3",
+                    "C",
+                    "java"
+                ],
+                "version": [
+                    "git",
+                    "svn"
+                ],
+                "database": [
+                    "postgreSQL",
+                    "MongoDB"
+                ],
+                "cloud": [
+                    "AWS"
+                ],
+                "ci": [
+                    "jenkins"
+                ],
+                "other": [
+                    "english"
+                ]
+            }
         },
         {
             "start": "2023-04-04",
@@ -23,10 +50,35 @@
             "start": "1979-10-17",
             "end": "2016-02-02",
             "institution": "Anderson LLC",
-            "description": "some random description"
+            "description": {
+                "context": "a beautiful context",
+                "programming": [
+                    "fortran",
+                    "java",
+                    "rust"
+                ],
+                "version": [
+                    "git",
+                    "bazaar"
+                ],
+                "database": [
+                    "postgreSQL",
+                    "SQLite"
+                ],
+                "cloud": [
+                    "AWS"
+                ],
+                "ci": [
+                    "docker"
+                ],
+                "other": [
+                    "english",
+                    "french"
+                ]
+            }
         }
     ],
-    "experience": [
+    "experiences": [
         {
             "start": "2013-06-09",
             "end": "1978-04-16",
@@ -47,7 +99,21 @@
             "start": "2013-10-24",
             "end": "1984-12-25",
             "institution": "Horton, Richardson and Salinas",
-            "description": "some random description"
+            "description": {
+                "context": "a beautiful description",
+                "programming": [
+                    "rust"
+                ],
+                "version": [
+                    "git"
+                ],
+                "database": [
+                    "SQLite"
+                ],
+                "ci": [
+                    "docker"
+                ]
+            }
         },
         {
             "start": "1992-01-12",
@@ -64,7 +130,9 @@
             "start": "2021-01-10",
             "end": "1980-11-10",
             "institution": "Hurley, Smith and Mack",
-            "description": "some random description"
+            "description": {
+                "context": "some random description"
+            }
         },
         {
             "start": "1992-05-06",
