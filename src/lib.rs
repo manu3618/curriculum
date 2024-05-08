@@ -67,13 +67,36 @@ impl CVEntry {
     }
 
     /// get skills
-    /// {category:Vec<skills>}
+    /// {category: [skills]}
     fn extract_skills(&self) -> HashMap<&str, Vec<String>> {
         if let Some(desc) = &self.description {
             desc.extract_skills()
         } else {
             HashMap::new()
         }
+    }
+
+    /// get skills with duration
+    /// {category: {skill: duration}}
+    fn extract_skills_duration(&self) -> HashMap<&str, HashMap<String, Duration>> {
+        if let Some(desc) = &self.description {
+            (desc.extract_skills().iter().map(|(&category, skills)| {
+                (
+                    category,
+                    skills
+                        .iter()
+                        .map(|s| (s.clone(), self.duration().unwrap_or(Duration::zero())))
+                        .collect::<HashMap<_, _>>(),
+                )
+            }))
+            .collect::<HashMap<_, _>>()
+        } else {
+            HashMap::new()
+        }
+    }
+
+    fn extract_subentries_skills(&self) -> HashMap<&str, Vec<String>> {
+        todo!()
     }
 
     /// return duration of this entry
