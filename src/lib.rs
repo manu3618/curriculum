@@ -84,6 +84,12 @@ fn make_first_page() -> String {
     todo!()
 }
 
+#[derive(Debug, PartialEq, Eq)]
+struct CVDuration {
+    year: u32,
+    month: u32,
+}
+
 impl CVEntry {
     fn to_latex(&self) -> String {
         todo!()
@@ -113,6 +119,18 @@ impl CVEntry {
             } else {
                 Some(Utc::now() - b)
             }
+        } else {
+            None
+        }
+    }
+
+    fn cv_duration(&self) -> Option<CVDuration> {
+        if let Some(duration) = &self.duration() {
+            let duration: u32 = duration.num_days() as u32;
+            let year = duration / 365;
+            let remaining_days = duration % 365;
+            let month = (remaining_days + 15) / 30;
+            Some(CVDuration { year, month })
         } else {
             None
         }
@@ -220,7 +238,7 @@ mod cv_date {
     {
         let s: Option<String> = Option::deserialize(deserializer)?;
         if let Some(s) = s {
-            let date: Vec<_> = s.split("-").collect();
+            let date: Vec<_> = s.split('-').collect();
             let date: DateTime<Utc> = Utc
                 .with_ymd_and_hms(
                     str::parse(date[0]).unwrap(),
@@ -320,5 +338,97 @@ mod tests {
         let entry: CVEntry = serde_json::from_str(&data).unwrap();
         let skills = entry.extract_skills();
         assert!(skills.keys().collect::<Vec<_>>().contains(&&"CI/CD"));
+    }
+
+    #[test]
+    fn entry_duration() {
+        let data = r#"
+        {
+            "beginning": "2023-10",
+            "end" : "2023-12",
+            "city": "Brussels",
+            "description":
+                 {
+                    "context": "some super context",
+                    "ci": ["git", "gitlab"]
+                }
+        }
+        "#;
+        let entry: CVEntry = serde_json::from_str(&data).unwrap();
+        let duration = entry.cv_duration();
+        assert_eq!(duration, Some(CVDuration { year: 0, month: 2 }));
+    }
+
+    #[test]
+    fn entry_duration_long() {
+        let data = r#"
+        {
+            "beginning": "2013-10",
+            "end" : "2023-12",
+            "city": "Brussels",
+            "description":
+                 {
+                    "context": "some super context",
+                    "ci": ["git", "gitlab"]
+                }
+        }
+        "#;
+        let entry: CVEntry = serde_json::from_str(&data).unwrap();
+        let duration = entry.cv_duration();
+        assert_eq!(duration, Some(CVDuration { year: 10, month: 2 }));
+    }
+
+    #[test]
+    fn entry_duration_null() {
+        let data = r#"
+        {
+            "beginning": "2023-10",
+            "end" : "2023-10",
+            "city": "Brussels",
+            "description":
+                 {
+                    "context": "some super context",
+                    "ci": ["git", "gitlab"]
+                }
+        }
+        "#;
+        let entry: CVEntry = serde_json::from_str(&data).unwrap();
+        let duration = entry.cv_duration();
+        assert_eq!(duration, Some(CVDuration { year: 0, month: 0 }));
+    }
+
+    #[test]
+    fn entry_duration_none() {
+        let data = r#"
+        {
+            "city": "Brussels",
+            "description":
+                 {
+                    "context": "some super context",
+                    "ci": ["git", "gitlab"]
+                }
+        }
+        "#;
+        let entry: CVEntry = serde_json::from_str(&data).unwrap();
+        let duration = entry.cv_duration();
+        assert_eq!(duration, None);
+    }
+
+    #[test]
+    fn entry_duration_noend() {
+        let data = r#"
+        {
+            "beginning": "2023-10",
+            "city": "Brussels",
+            "description":
+                 {
+                    "context": "some super context",
+                    "ci": ["git", "gitlab"]
+                }
+        }
+        "#;
+        let entry: CVEntry = serde_json::from_str(&data).unwrap();
+        let duration = entry.cv_duration().unwrap();
+        assert!(duration.month + duration.year > 0);
     }
 }
