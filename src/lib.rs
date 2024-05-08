@@ -45,6 +45,30 @@ struct CVEntry {
 impl CVEntry {
     /// Produce corresponding LaTeX
     fn to_latex(&self) -> String {
+        let mut descr = match &self.description {
+            Some(d) => d.to_latex(),
+            None => "".into(),
+        };
+        let max_date_len = &self.subentries.iter().map(|e| e.get_dates().len()).max();
+        for subentry in &self.subentries {
+            descr.push_str("\n\\\\");
+            if let Some(margin) = max_date_len {
+                descr.push_str(&format!("\\hspace*{{-{}ex}}", 21.5 - *margin as f32));
+            }
+            descr.push_str(&subentry.to_latex());
+        }
+        format!(
+            "\\cventry{{{}}}{{{}}}{{{}}}{{{}}}{{{}}}{{{}}}",
+            &self.get_dates(),
+            &self.degree, // title
+            &self.institution,
+            &self.city.clone().unwrap_or("".into()),
+            &self.grade.clone().unwrap_or("".into()),
+            descr,
+        )
+    }
+
+    fn get_dates(&self) -> String {
         let mut dates: Vec<String> = Vec::new();
         if let Some(b) = self.beginning {
             dates.push(format!("{}", b.format("%Y")))
@@ -52,23 +76,7 @@ impl CVEntry {
         if let Some(e) = self.end {
             dates.push(format!("{}", e.format("%Y")))
         };
-        let mut descr = match &self.description {
-            Some(d) => d.to_latex(),
-            None => "".into(),
-        };
-        for subentry in &self.subentries {
-            descr.push_str("\n%");
-            descr.push_str(&subentry.to_latex());
-        }
-        format!(
-            "\\cventry{{{}}}{{{}}}{{{}}}{{{}}}{{{}}}{{{}}}",
-            dates.join("--"),
-            &self.degree, // title
-            &self.institution,
-            &self.city.clone().unwrap_or("".into()),
-            &self.grade.clone().unwrap_or("".into()),
-            descr,
-        )
+        dates.join("--")
     }
 
     /// get skills
@@ -805,20 +813,20 @@ mod tests {
     fn subentries() {
         let data = r#"
         {
-            "start": "1977-07-01",
+            "beginning": "1977-07-01",
             "end": "2000-11-25",
             "institution": "Campbell, Delgado and Parker",
             "city": "West William",
             "subentries": [
                 {
-                    "start": "1977-07-01",
+                    "beginning": "1977-07-01",
                     "end": "1980-07-01",
                     "description": {
                         "context": "first part"
                     }
                 },
                 {
-                    "start": "1980-07-01",
+                    "beginning": "1980-07-01",
                     "end": "1987-07-01",
                     "description": {
                         "context": "second part"

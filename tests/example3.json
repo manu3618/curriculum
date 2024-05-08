@@ -43,7 +43,7 @@
     ],
     "education": [
         {
-            "start": "1991-10-09",
+            "beginning": "1991-10-09",
             "end": "1988-11-02",
             "degree": "MS",
             "institution": "Bennett-Wallace",
@@ -53,7 +53,7 @@
             }
         },
         {
-            "start": "1979-10-17",
+            "beginning": "1979-10-17",
             "end": "2016-02-02",
             "degree": "Good one",
             "institution": "Anderson LLC",
@@ -64,7 +64,7 @@
     ],
     "experiences": [
         {
-            "start": "2013-06-09",
+            "beginning": "2013-06-09",
             "end": "2020-04-16",
             "degree": "Consultant",
             "institution": "Garcia, Garza and Lowery",
@@ -75,8 +75,29 @@
             },
             "subentries": [
                 {
-                    "start": "2013-06-09",
+                    "beginning": "2013-06-09",
                     "end": "2020-04-16",
+                    "degree": "Consultant",
+                    "institution": "client",
+                    "description": {
+                        "context": "A good context"
+                    }
+                }
+            ]
+        },
+        {
+            "beginning": "2013-06-09",
+            "end": "2020-04-16",
+            "degree": "Consultant",
+            "institution": "Garcia, Garza and Lowery",
+            "city": "Bruxelles",
+            "grade": "beautiful grade",
+            "description" : {
+                "context": "small context"
+            },
+            "subentries": [
+                {
+                    "beginning": "2013-06",
                     "degree": "Consultant",
                     "institution": "client",
                     "description": {
