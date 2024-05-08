@@ -125,6 +125,21 @@ impl CVEntry {
     }
 }
 
+/// Add skillset from other to acc
+fn add_skillsets<'a, I, S>(
+    acc: &mut HashMap<&'a str, HashMap<String, Duration>>,
+    other: HashMap<&'a str, HashMap<String, Duration>>,
+) {
+    for (category, skills) in other.iter() {
+        let mut cat = acc.entry(category).or_default();
+        for (skill, duration) in skills.iter() {
+            cat.entry(skill.into()).and_modify(|d| *d = *d + *duration);
+        }
+    }
+    // XXX
+    // TODO: write tests
+}
+
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct EntryDescription {
     #[serde(default)]
