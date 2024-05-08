@@ -39,7 +39,7 @@ struct CVEntry {
     #[serde(default)]
     description: Option<EntryDescription>,
     #[serde(default)]
-    subentries: Option<Box<CVEntry>>,
+    subentries: Vec<CVEntry>,
 }
 
 impl CVEntry {
@@ -95,8 +95,14 @@ impl CVEntry {
         }
     }
 
-    fn extract_subentries_skills(&self) -> HashMap<&str, Vec<String>> {
-        todo!()
+    /// get skills with duration, including subentries
+    /// {category: {skill: duration}}
+    fn extract_subentries_skills(&self) -> HashMap<&str, HashMap<String, Duration>> {
+        let skills = self.extract_skills_duration();
+        self.subentries.iter().fold(skills, |mut acc, entry| {
+            add_skillsets(&mut acc, entry.extract_subentries_skills());
+            acc
+        })
     }
 
     /// return duration of this entry
@@ -126,74 +132,7 @@ impl CVEntry {
 }
 
 /// Add skillset from other to acc
-/// ```
-/// use std::collections::HashMap;
-/// use chrono::Duration;
-/// use curriculum::add_skillsets;
-///
-///
-/// let mut skills0 = HashMap::new();
-/// let skills1 = HashMap::from([
-///     (
-///         "languages",
-///         HashMap::from([
-///             ("english", Duration::days(20)),
-///             ("spanish", Duration::days(30)),
-///             ("french", Duration::days(1)),
-///         ]),
-///     ),
-///         ("management", HashMap::from([("jira", Duration::zero())])),
-/// ]);
-///
-/// add_skillsets(&mut skills0, skills1);
-/// assert_eq!(
-///     skills0.get("languages").and_then(|s| s.get("english")),
-///     Some(Duration::days(20)).as_ref()
-/// );
-/// assert_eq!(
-///     skills0.get("management").and_then(|s| s.get("jira")),
-///     Some(Duration::zero()).as_ref()
-/// );
-///
-///
-/// let skills2 = HashMap::from([
-///     (
-///         "languages",
-///         HashMap::from([
-///             ("arabic", Duration::days(3)),
-///             ("french", Duration::days(10)),
-///         ]),
-///     ),
-///         ("driving", HashMap::from([("cars", Duration::zero())])),
-/// ]);
-/// add_skillsets(&mut skills0, skills2);
-/// assert_eq!(
-///     skills0.get("languages").and_then(|s| s.get("english")),
-///     Some(Duration::days(20)).as_ref()
-/// );
-/// assert_eq!(
-///     skills0.get("languages").and_then(|s| s.get("spanish")),
-///     Some(Duration::days(30)).as_ref()
-/// );
-/// assert_eq!(
-///     skills0.get("languages").and_then(|s| s.get("french")),
-///     Some(Duration::days(11)).as_ref()
-/// );
-/// assert_eq!(
-///     skills0.get("languages").and_then(|s| s.get("arabic")),
-///     Some(Duration::days(3)).as_ref()
-/// );
-/// assert_eq!(
-///     skills0.get("management").and_then(|s| s.get("jira")),
-///     Some(Duration::zero()).as_ref()
-/// );
-/// assert_eq!(
-///     skills0.get("driving").and_then(|s| s.get("cars")),
-///     Some(Duration::zero()).as_ref()
-/// );
-///
-/// ```
-pub fn add_skillsets<'a, I, S>(
+fn add_skillsets<'a, I, S>(
     acc: &mut HashMap<&'a str, HashMap<String, Duration>>,
     other: HashMap<&'a str, I>,
 ) where
@@ -202,11 +141,11 @@ pub fn add_skillsets<'a, I, S>(
     String: From<S>,
 {
     for (category, skills) in other {
-        let mut cat = acc.entry(category).or_default();
+        let cat = acc.entry(category).or_default();
         for (skill, duration) in skills {
             cat.entry(skill.into())
                 .and_modify(|d| *d = *d + duration)
-                .or_insert(duration.clone());
+                .or_insert(duration);
         }
     }
 }
@@ -793,5 +732,67 @@ mod tests {
         assert!(tex[0].contains("mailto:"));
         assert!(tex[0].contains("John"));
         assert!(tex[1].contains("mailto:"));
+    }
+
+    #[test]
+    fn skills_accumulator() {
+        let mut skills0 = HashMap::new();
+        let skills1 = HashMap::from([
+            (
+                "languages",
+                HashMap::from([
+                    ("english", Duration::days(20)),
+                    ("spanish", Duration::days(30)),
+                    ("french", Duration::days(1)),
+                ]),
+            ),
+            ("management", HashMap::from([("jira", Duration::zero())])),
+        ]);
+
+        add_skillsets(&mut skills0, skills1);
+        assert_eq!(
+            skills0.get("languages").and_then(|s| s.get("english")),
+            Some(Duration::days(20)).as_ref()
+        );
+        assert_eq!(
+            skills0.get("management").and_then(|s| s.get("jira")),
+            Some(Duration::zero()).as_ref()
+        );
+
+        let skills2 = HashMap::from([
+            (
+                "languages",
+                HashMap::from([
+                    ("arabic", Duration::days(3)),
+                    ("french", Duration::days(10)),
+                ]),
+            ),
+            ("driving", HashMap::from([("cars", Duration::zero())])),
+        ]);
+        add_skillsets(&mut skills0, skills2);
+        assert_eq!(
+            skills0.get("languages").and_then(|s| s.get("english")),
+            Some(Duration::days(20)).as_ref()
+        );
+        assert_eq!(
+            skills0.get("languages").and_then(|s| s.get("spanish")),
+            Some(Duration::days(30)).as_ref()
+        );
+        assert_eq!(
+            skills0.get("languages").and_then(|s| s.get("french")),
+            Some(Duration::days(11)).as_ref()
+        );
+        assert_eq!(
+            skills0.get("languages").and_then(|s| s.get("arabic")),
+            Some(Duration::days(3)).as_ref()
+        );
+        assert_eq!(
+            skills0.get("management").and_then(|s| s.get("jira")),
+            Some(Duration::zero()).as_ref()
+        );
+        assert_eq!(
+            skills0.get("driving").and_then(|s| s.get("cars")),
+            Some(Duration::zero()).as_ref()
+        );
     }
 }
