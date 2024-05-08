@@ -3,6 +3,7 @@ use chrono::{DateTime, Duration, TimeZone, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
+use std::ops::Add;
 use std::path::Path;
 
 static DATA_DIR: &str = "data";
@@ -84,10 +85,39 @@ fn make_first_page() -> String {
     todo!()
 }
 
-#[derive(Debug, PartialEq, Eq)]
-struct CVDuration {
-    year: u32,
-    month: u32,
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct CVDuration {
+    pub year: u32,
+    pub month: u32,
+}
+
+impl Add for CVDuration {
+    type Output = Self;
+
+    /// Add durations
+    /// ```
+    /// use curriculum::CVDuration;
+    ///
+    /// let d1 = CVDuration {year: 1, month: 9};
+    /// let d2 = CVDuration {year: 0, month: 8};
+    /// let d3 = CVDuration {year: 2, month: 0};
+    ///
+    /// assert_eq!(d1.clone() + d2.clone(), CVDuration{ year:2, month: 5 });
+    /// assert_eq!(d1 + d3.clone(), CVDuration{ year:3, month: 9 });
+    /// assert_eq!(d2 + d3, CVDuration{ year:2, month: 8 });
+    /// ```
+    fn add(self, other: Self) -> Self {
+        let m = &self.month + &other.month;
+        let y = &self.year + &other.year;
+        if m < 12 {
+            Self { year: y, month: m }
+        } else {
+            Self {
+                year: y + (m / 12),
+                month: m % 12,
+            }
+        }
+    }
 }
 
 impl CVEntry {
