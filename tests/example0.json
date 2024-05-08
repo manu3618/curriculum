@@ -1,0 +1,95 @@
+{
+    "personal data": {
+        "name": "Jessica Goodwin",
+        "title": "Environmental manager",
+        "mobile": ["525-450-5504x921"]
+    },
+    "education": [
+        {
+            "start": "2014-05-05",
+            "end": "1986-11-01",
+            "degree": null,
+            "institution": "Burns Inc"
+        },
+        {
+            "start": "1977-07-01",
+            "end": "2000-11-25",
+            "degree": null,
+            "institution": "Campbell, Delgado and Parker",
+            "city": "West William"
+        },
+        {
+            "start": "1980-02-23",
+            "end": "1996-08-31",
+            "degree": null,
+            "institution": "Jenkins-Durham"
+        }
+    ],
+    "experience": [
+        {
+            "start": "1984-08-28",
+            "end": "1998-11-19",
+            "degree": null,
+            "institution": "Anderson, Alvarez and Patterson"
+        },
+        {
+            "start": "1997-05-06",
+            "end": "2020-11-14",
+            "degree": null,
+            "institution": "Brewer LLC"
+        },
+        {
+            "start": "1974-05-07",
+            "end": "2009-06-16",
+            "degree": null,
+            "institution": "Smith-Long",
+            "description": "some random description"
+        },
+        {
+            "start": "2007-03-08",
+            "end": "2008-02-10",
+            "degree": null,
+            "institution": "Ford Ltd"
+        },
+        {
+            "start": "2021-07-15",
+            "end": "1980-07-03",
+            "degree": null,
+            "institution": "Rubio-Cross"
+        },
+        {
+            "start": "1997-04-08",
+            "end": "1990-12-17",
+            "degree": null,
+            "institution": "Sparks Inc",
+            "city": "South Margaretville",
+            "description": "some random description"
+        },
+        {
+            "start": "2004-04-09",
+            "end": "1977-06-07",
+            "degree": null,
+            "institution": "Smith Group"
+        },
+        {
+            "start": "2002-03-18",
+            "end": "2007-06-06",
+            "degree": null,
+            "institution": "Smith-Terry",
+            "description": "some random description"
+        },
+        {
+            "start": "1974-07-01",
+            "end": "2021-10-20",
+            "degree": null,
+            "institution": "Mejia, Gregory and Villarreal",
+            "description": "some random description"
+        },
+        {
+            "start": "2010-05-28",
+            "end": "2008-08-01",
+            "degree": null,
+            "institution": "Klein, Moore and Rice"
+        }
+    ]
+}

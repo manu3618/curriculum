@@ -1,0 +1,97 @@
+{
+    "personal data": {
+        "name": "Bethany Johnson",
+        "title": "Librarian, public",
+        "mobile": ["977-831-3487x35289", "977-831-3487x35289"]
+    },
+    "education": [
+        {
+            "start": "1991-10-09",
+            "end": "1988-11-02",
+            "degree": null,
+            "institution": "Bennett-Wallace",
+            "city": "Lake Whitneyborough",
+            "description": "some random description"
+        },
+        {
+            "start": "2023-04-04",
+            "end": "2009-06-18",
+            "degree": null,
+            "institution": "Hodge Inc",
+            "city": "Port Bruce"
+        },
+        {
+            "start": "1979-10-17",
+            "end": "2016-02-02",
+            "degree": null,
+            "institution": "Anderson LLC",
+            "description": "some random description"
+        }
+    ],
+    "experience": [
+        {
+            "start": "2013-06-09",
+            "end": "1978-04-16",
+            "degree": null,
+            "institution": "Garcia, Garza and Lowery"
+        },
+        {
+            "start": "2015-03-31",
+            "end": "1979-02-04",
+            "degree": null,
+            "institution": "Alvarez-Jenkins",
+            "city": "Normanton"
+        },
+        {
+            "start": "1998-06-18",
+            "end": "2005-05-29",
+            "degree": null,
+            "institution": "Black Inc"
+        },
+        {
+            "start": "2013-10-24",
+            "end": "1984-12-25",
+            "degree": null,
+            "institution": "Horton, Richardson and Salinas",
+            "description": "some random description"
+        },
+        {
+            "start": "1992-01-12",
+            "end": "1978-03-15",
+            "degree": null,
+            "institution": "Ingram-Nguyen",
+            "city": "Lydiastad"
+        },
+        {
+            "start": "1971-07-01",
+            "end": "1991-09-07",
+            "degree": null,
+            "institution": "Ortega, Davis and Brown"
+        },
+        {
+            "start": "2021-01-10",
+            "end": "1980-11-10",
+            "degree": null,
+            "institution": "Hurley, Smith and Mack",
+            "description": "some random description"
+        },
+        {
+            "start": "1992-05-06",
+            "end": "1972-01-17",
+            "degree": null,
+            "institution": "Hernandez, Ramos and Morrison"
+        },
+        {
+            "start": "1971-12-01",
+            "end": "1986-02-17",
+            "degree": null,
+            "institution": "Henderson, Dennis and Pacheco"
+        },
+        {
+            "start": "1994-04-12",
+            "end": "2005-07-28",
+            "degree": null,
+            "institution": "Bass, Morse and Paul"
+        }
+    ]
+}
