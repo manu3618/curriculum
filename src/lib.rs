@@ -38,6 +38,8 @@ struct CVEntry {
     grade: Option<String>,
     #[serde(default)]
     description: Option<EntryDescription>,
+    #[serde(default)]
+    subentries: Option<Box<CVEntry>>,
 }
 
 impl CVEntry {
@@ -139,14 +141,16 @@ impl EntryDescription {
         let mut lines: Vec<String> = Vec::new();
         lines.push("%".into());
         lines.push((&self.context).into());
-        lines.push("\\begin{description}".into());
         let skills = &self.extract_skills();
-        for name in SKILL_CATEGORIES {
-            if let Some(list) = skills.get(name) {
-                lines.push(format!("[{}] {}", name, list.join(", ")))
+        if !skills.is_empty() {
+            lines.push("\\begin{description}".into());
+            for name in SKILL_CATEGORIES {
+                if let Some(list) = skills.get(name) {
+                    lines.push(format!("\\item [{}] {}", name, list.join(", ")))
+                }
             }
+            lines.push("\\end{description}\n".into());
         }
-        lines.push("\\end{description}".into());
         lines.join("\n")
     }
 }

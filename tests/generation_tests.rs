@@ -21,7 +21,7 @@ fn tex_generation() {
         let tex_data = cv.to_latex().unwrap();
         assert!(tex_data.len() > 0);
         eprintln!("writing to {}", out_path.display());
-        fs::write(out_path.clone(), tex_data);
+        let _ = fs::write(out_path.clone(), tex_data);
         assert!(out_path.exists());
         assert!(out_path.is_file());
 
