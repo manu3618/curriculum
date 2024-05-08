@@ -1,0 +1,44 @@
+%\documentclass[10pt,a4paper]{manumoderncv}
+\documentclass[10pt,a4paper]{moderncv}
+
+% manumoderncv themes
+%\manumoderncvtheme[blue]{classic}		% optional argument are 'blue' (default), 'orange', 'red', 'green', 'grey' and 'roman' (for roman fonts, instead of sans serif fonts)
+%\manumoderncvtheme[blue]{classic}		% idem
+\moderncvtheme[blue]{classic}		% themes are banking, classic, oldstyle
+% manu custom length:
+\setlength{\hintscolumnwidth}{0.25\textwidth} 		% default: 0.175
+\setlength{\separatorcolumnwidth}{0.025\textwidth} 	% default: 0.0025
+\setlength{\maincolumnwidth}{\textwidth-\separatorcolumnwidth-\hintscolumnwidth}%
+
+
+
+% character encoding
+% \usepackage[latin9]{inputenc}                   % replace by the encoding you are using
+\usepackage{multicol}	% multicol triple itemize
+
+% adjust the page margins
+\usepackage[scale=0.85,margin=1.5cm]{geometry}
+
+%\usepackage[scale=0.92]{geometry}
+%\setlength{\hintscolumnwidth}{3cm}			 % if you want to change the width of the column with the dates
+%\AtBeginDocument{\setlength{\maketitlenamewidth}{6cm}}  % only for the classic theme, if you want to change the width of your name placeholder (to leave more space for your address details
+\AtBeginDocument{\recomputelengths}                      % required when changes are made to page layout lengths
+
+\newcommand{\contactmail}[2]{%
+    \ifcontact{\small contact: #1 \href{mailto:#2}{#2}}\fi
+}
+\newcommand{\mission}[1]{%
+    \ifextendedXP{\vspace{0.5ex}{\small #1}}\fi
+}
+\newcommand{\techno}[1]{%
+    \ifextendedXP{
+
+        \vspace{0.5ex}
+        \begin{minipage}{.9\textwidth}\textbf{Technologies used}:\hfill{}\end{minipage}
+        \begin{minipage}{2ex}\hspace{1ex}\end{minipage}%
+        \begin{minipage}{.8\paperwidth}{\small #1}\end{minipage}}\fi
+}
+\newcommand{\rust}[1]{\ifrust{#1}\fi}
+\newcommand{\ptc}[1]{\ifptcdetails{#1}\fi}
+
+

@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chrono::{DateTime, Duration, TimeZone, Utc};
+use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -143,7 +143,7 @@ impl EntryDescription {
         let skills = &self.extract_skills();
         for name in SKILL_CATEGORIES {
             if let Some(list) = skills.get(name) {
-                lines.push(format!("[{}] {}", name, list.join(", ")).into())
+                lines.push(format!("[{}] {}", name, list.join(", ")))
             }
         }
         lines.push("\\end{description}".into());
@@ -157,6 +157,8 @@ pub struct Curriculum {
     personal_data: PersonalData,
     education: Vec<CVEntry>,
     experiences: Vec<CVEntry>,
+    #[serde(default)]
+    languages: Vec<CVLanguage>,
 }
 
 impl Curriculum {
@@ -167,6 +169,7 @@ impl Curriculum {
         output.push(String::from_utf8(preamb)?);
 
         // TODO replace with first page
+        // TODO add skills
         output.push(self.personal_data.to_latex());
         output.push("\n\\begin{document}\n".into());
         output.push("\\maketitle".into());
@@ -252,7 +255,7 @@ impl PersonalData {
         if let Some(last_name) = names.get(1) {
             lines.push(format!("\\familyname{{\\LARGE {last_name}}}"));
         } else {
-            lines.push(format!("\\familyname{{}}"));
+            lines.push("\\familyname{{}}".into());
         }
         if let Some(title) = &self.title {
             lines.push(format!("\\title{{{}}}", title));
@@ -283,6 +286,23 @@ impl PersonalData {
     }
 }
 
+#[derive(Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+struct CVLanguage {
+    language: String,
+    #[serde(default)]
+    level: String,
+    #[serde(default)]
+    comment: String,
+}
+
+impl CVLanguage {
+    fn to_latex(&self) -> String {
+        format!(
+            "\\cvlanguage{{{}}}{{{}}}{{{}}}",
+            self.language, self.level, self.level
+        )
+    }
+}
 #[derive(Debug)]
 struct List(Vec<String>);
 
@@ -382,7 +402,7 @@ impl List {
 mod cv_date {
     use chrono::{DateTime, TimeZone, Utc};
     use serde::{self, Deserialize, Deserializer, Serializer};
-    const FORMAT: &'static str = "%Y-%m";
+    const FORMAT: &str = "%Y-%m";
 
     pub fn serialize<S>(date: &Option<DateTime<Utc>>, serializer: S) -> Result<S::Ok, S::Error>
     where

@@ -1,6 +1,5 @@
 use anyhow::Result;
 use clap::Parser;
-use curriculum::Curriculum;
 use std::fs;
 use std::path::Path;
 // use tectonic; // TODO use an optional dependency
@@ -19,7 +18,9 @@ fn main() -> Result<()> {
     dbg!(&path);
     dbg!(&in_ext);
 
-    let cv = Curriculum::default(); // TODO: from_json
+    let content = fs::read_to_string(path)?;
+    let cv: curriculum::Curriculum = serde_json::from_str(&content)?;
+    dbg!(&cv);
     let tex_data = cv.to_latex()?;
     let tex_path = path.with_extension("tex");
     println!("wrinting {}", tex_path.display());
