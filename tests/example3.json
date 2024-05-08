@@ -1,0 +1,89 @@
+{
+    "personal data": {
+        "name": "Bethany Johnson",
+        "title": "Librarian, public",
+        "mobile": [
+            "977-831-3487x35289",
+            "977-831-3487x35289"
+        ],
+        "email": [
+            {
+                "name": "Bet",
+                "mail": "example@example.org"
+            },
+            {
+                "mail": "another@example.org"
+            }
+        ],
+        "github": "John",
+        "gitlab": "John",
+        "twitter": "John",
+        "linkedin": "John",
+        "webpage": [
+            [
+                "blog",
+                "https://blog.example.org"
+            ],
+            [
+                "other page",
+                "https://other.example.com"
+            ]
+        ]
+    },
+    "languages": [
+        {
+            "language": "english",
+            "level": "native",
+            "comment": "a beautiful comment"
+        },
+        {
+            "language": "french",
+            "level": "native"
+        }
+    ],
+    "education": [
+        {
+            "start": "1991-10-09",
+            "end": "1988-11-02",
+            "degree": "MS",
+            "institution": "Bennett-Wallace",
+            "city": "Lake Whitneyborough",
+            "description": {
+                "context": "some random description"
+            }
+        },
+        {
+            "start": "1979-10-17",
+            "end": "2016-02-02",
+            "degree": "Good one",
+            "institution": "Anderson LLC",
+            "description": {
+                "context": "Pretty good university"
+            }
+        }
+    ],
+    "experiences": [
+        {
+            "start": "2013-06-09",
+            "end": "2020-04-16",
+            "degree": "Consultant",
+            "institution": "Garcia, Garza and Lowery",
+            "city": "Bruxelles",
+            "grade": "beautiful grade",
+            "description" : {
+                "context": "small context"
+            },
+            "subentries": [
+                {
+                    "start": "2013-06-09",
+                    "end": "2020-04-16",
+                    "degree": "Consultant",
+                    "institution": "client",
+                    "description": {
+                        "context": "A good context"
+                    }
+                }
+            ]
+        }
+    ]
+}

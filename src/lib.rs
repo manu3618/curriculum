@@ -43,6 +43,7 @@ struct CVEntry {
 }
 
 impl CVEntry {
+    /// Produce corresponding LaTeX
     fn to_latex(&self) -> String {
         let mut dates: Vec<String> = Vec::new();
         if let Some(b) = self.beginning {
@@ -51,10 +52,14 @@ impl CVEntry {
         if let Some(e) = self.end {
             dates.push(format!("{}", e.format("%Y")))
         };
-        let descr = match &self.description {
+        let mut descr = match &self.description {
             Some(d) => d.to_latex(),
             None => "".into(),
         };
+        for subentry in &self.subentries {
+            descr.push_str("\n%");
+            descr.push_str(&subentry.to_latex());
+        }
         format!(
             "\\cventry{{{}}}{{{}}}{{{}}}{{{}}}{{{}}}{{{}}}",
             dates.join("--"),
@@ -794,5 +799,34 @@ mod tests {
             skills0.get("driving").and_then(|s| s.get("cars")),
             Some(Duration::zero()).as_ref()
         );
+    }
+
+    #[test]
+    fn subentries() {
+        let data = r#"
+        {
+            "start": "1977-07-01",
+            "end": "2000-11-25",
+            "institution": "Campbell, Delgado and Parker",
+            "city": "West William",
+            "subentries": [
+                {
+                    "start": "1977-07-01",
+                    "end": "1980-07-01",
+                    "description": {
+                        "context": "first part"
+                    }
+                },
+                {
+                    "start": "1980-07-01",
+                    "end": "1987-07-01",
+                    "description": {
+                        "context": "second part"
+                    }
+                }
+            ]
+        }
+        "#;
+        let entry: CVEntry = serde_json::from_str(&data).unwrap();
     }
 }
