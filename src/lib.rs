@@ -51,7 +51,7 @@ impl CVEntry {
         };
         let max_date_len = &self.subentries.iter().map(|e| e.get_dates().len()).max();
         for subentry in &self.subentries {
-            descr.push_str("\n");
+            descr.push('\n');
             if let Some(margin) = max_date_len {
                 descr.push_str(&format!("\\hspace*{{-{}ex}}", 21.5 - *margin as f32));
             }
@@ -508,6 +508,7 @@ mod cv_date {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use regex::Regex;
 
     #[test]
     fn read_incomplete_entry() {
@@ -836,7 +837,14 @@ mod tests {
         }
         "#;
         let entry: CVEntry = serde_json::from_str(&data).unwrap();
-        // TODO add test en entry
-        // XXX
+        let tex = entry.to_latex();
+        assert_eq!(
+            tex.chars().filter(|&x| x == '{').count(),
+            tex.chars().filter(|&x| x == '}').count()
+        );
+        assert!(tex.chars().filter(|&x| x == '{').count() > 6);
+
+        let re = Regex::new("cventry").unwrap();
+        assert!(re.captures_iter(&tex).collect::<Vec<_>>().len() > 2);
     }
 }
