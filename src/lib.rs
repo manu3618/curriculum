@@ -57,7 +57,7 @@ pub struct Curriculum {
     #[serde(rename = "personal data")]
     personal_data: PersonalData,
     education: Vec<CVEntry>,
-    experiences: Vec<EntryDescription>,
+    experiences: Vec<CVEntry>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -85,10 +85,48 @@ fn make_first_page() -> String {
     todo!()
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, Default, PartialEq, Eq, Clone)]
 pub struct CVDuration {
     pub year: u32,
     pub month: u32,
+}
+
+impl CVDuration {
+    /// Round to nearest year number if duration is more than 10 months
+    /// ```
+    /// use curriculum::CVDuration;
+    ///
+    /// let d = CVDuration {year: 3, month: 3};
+    /// assert_eq!(d.round(), CVDuration {year: 3, month: 0});
+    ///
+    /// let d = CVDuration {year: 3, month: 9};
+    /// assert_eq!(d.round(), CVDuration {year: 4 , month: 0});
+    ///
+    /// let d = CVDuration {year: 3, month: 7};
+    /// assert_eq!(d.round(), CVDuration {year: 4 , month: 0});
+    ///
+    /// let d = CVDuration {year: 3, month: 6};
+    /// assert_eq!(d.round(), CVDuration {year: 4 , month: 0});
+    ///
+    /// let d = CVDuration {year: 3, month: 5};
+    /// assert_eq!(d.round(), CVDuration {year: 3 , month: 0});
+    ///
+    /// let d = CVDuration {year: 0, month: 11};
+    /// assert_eq!(d.round(), CVDuration {year: 1, month: 0});
+    ///
+    /// let d = CVDuration {year: 0, month: 10};
+    /// assert_eq!(d.round(), CVDuration {year: 0, month: 10});
+    /// ```
+    pub fn round(&self) -> Self {
+        if self.year == 0 && self.month <= 10 {
+            Self { ..*self }
+        } else {
+            Self {
+                year: (self.year * 12 + self.month + 6) / 12,
+                month: 0,
+            }
+        }
+    }
 }
 
 impl Add for CVDuration {
@@ -107,8 +145,8 @@ impl Add for CVDuration {
     /// assert_eq!(d2 + d3, CVDuration{ year:2, month: 8 });
     /// ```
     fn add(self, other: Self) -> Self {
-        let m = &self.month + &other.month;
-        let y = &self.year + &other.year;
+        let m = self.month + other.month;
+        let y = self.year + other.year;
         if m < 12 {
             Self { year: y, month: m }
         } else {
@@ -238,10 +276,23 @@ impl Curriculum {
         output.push("\\end{document}".into());
         Ok(output.join("\n"))
     }
+
     /// Get skills from entries
     /// {category: {skill: duration}}
-    fn get_skills(&self) -> HashMap<String, HashMap<String, String>> {
-        todo!()
+    fn get_skills(&self) -> HashMap<&str, HashMap<String, CVDuration>> {
+        let mut ret_skills = HashMap::new();
+        for xp in &self.experiences {
+            let duration = &xp.cv_duration().unwrap_or_default();
+            let entry_skills = xp.extract_skills();
+            for (categ, ref skills) in entry_skills {
+                let ret_categ: &mut HashMap<String, _> = ret_skills.entry(categ).or_default();
+                for skill in skills {
+                    let s: &mut CVDuration = ret_categ.entry(skill.clone()).or_default();
+                    *s = s.clone() + duration.clone();
+                }
+            }
+        }
+        ret_skills
     }
 }
 
@@ -460,5 +511,50 @@ mod tests {
         let entry: CVEntry = serde_json::from_str(&data).unwrap();
         let duration = entry.cv_duration().unwrap();
         assert!(duration.month + duration.year > 0);
+    }
+
+    #[test]
+    fn get_cv_skills() {
+        let data = r#"
+        {
+            "personal data": {
+                "name": "Jessica",
+                "title": "Environmental manager",
+                "mobile": ["+32 56 19 01"]
+                },
+            "education": [],
+            "experiences": [
+                {
+                    "beginning": "2022-10",
+                    "end": "2023-11",
+                    "city": "Brussels",
+                    "description":
+                         {
+                            "context": "some super context",
+                            "ci": ["git", "gitlab"]
+                        }
+                },
+                {
+                    "beginning": "2022-09",
+                    "end": "2023-07",
+                    "city": "Brussels",
+                    "description":
+                         {
+                            "context": "some super context",
+                            "ci": ["git", "gitlab"],
+                            "cloud": ["azure"]
+                        }
+                }
+
+            ]
+        }
+        "#;
+        let cv: Curriculum = serde_json::from_str(&data).unwrap();
+        let s = cv.get_skills();
+        assert_eq!(s["CI/CD"]["git"].clone(), CVDuration { year: 1, month: 11 });
+        assert_eq!(
+            s["cloud computing"]["azure"],
+            CVDuration { year: 0, month: 10 }
+        );
     }
 }
