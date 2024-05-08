@@ -136,9 +136,50 @@
         },
         {
             "start": "1992-05-06",
-            "end": "1972-01-17",
+            "end": "2972-01-17",
             "degree": "A random degree",
-            "institution": "Hernandez, Ramos and Morrison"
+            "institution": "Hernandez, Ramos and Morrison",
+            "description": {
+                "context": "a long mission",
+                "subentries": [
+                    {
+                        "start": "1992-05-06",
+                        "end": "1998-01-25",
+                        "description": {
+                            "context": "a first context",
+                            "institution": "a first institution",
+                            "programming": [
+                                "rust",
+                                "python3",
+                                "VBA"
+                            ]
+                        }
+                    },
+                    {
+                        "start": "1998-01-25",
+                        "end": "2018-01-25",
+                        "description": {
+                            "context": "a second context",
+                            "institution": "a good one",
+                            "programming": [
+                                "C",
+                                "python3"
+                            ]
+                        }
+                    },
+                    {
+                        "start": "2018-01-25",
+                        "end": "2972-01-17",
+                        "description": {
+                            "context": "a third context",
+                            "institution": "example",
+                            "programming": [
+                                "python3"
+                            ]
+                        }
+                    }
+                ]
+            }
         },
         {
             "start": "1971-12-01",
@@ -149,6 +190,28 @@
             "start": "1994-04-12",
             "end": "2005-07-28",
             "institution": "Bass, Morse and Paul"
+        },
+        {
+            "beginning": "1977-07-01",
+            "end": "2000-11-25",
+            "institution": "Campbell, Delgado and Parker",
+            "city": "West William",
+            "subentries": [
+                {
+                    "beginning": "1977-07-01",
+                    "end": "1980-07-01",
+                    "description": {
+                        "context": "first part"
+                    }
+                },
+                {
+                    "beginning": "1980-07-01",
+                    "end": "1987-07-01",
+                    "description": {
+                        "context": "second part"
+                    }
+                }
+            ]
         }
     ]
 }
