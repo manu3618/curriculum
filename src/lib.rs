@@ -170,6 +170,12 @@ impl Curriculum {
         output.push(self.personal_data.to_latex());
         output.push("\n\\begin{document}\n".into());
 
+        output.push("\\section{Education}".into());
+        for edu in &self.education {
+            output.push(edu.to_latex());
+            output.push("\n".into());
+        }
+
         output.push("\\section{Proffesional experience}".into());
         for experience in &self.experiences {
             output.push(experience.to_latex());
@@ -198,6 +204,25 @@ impl Curriculum {
         ret_skills
     }
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+struct CVEmail {
+    #[serde(default)]
+    name: Option<String>,
+    mail: String,
+}
+
+impl CVEmail {
+    fn to_latex(&self) -> String {
+        let link = format!("\\href{{mailto:{}}}{{{}}}", self.mail, self.mail);
+        if let Some(name) = &self.name {
+            format!("{}: {}", name, link)
+        } else {
+            link
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct PersonalData {
     name: String,
@@ -205,7 +230,7 @@ struct PersonalData {
     #[serde(default)]
     mobile: Vec<String>,
     #[serde(default)]
-    email: Vec<String>,
+    email: Vec<CVEmail>,
     github: Option<String>,
     gitlab: Option<String>,
     twitter: Option<String>,
@@ -214,6 +239,45 @@ struct PersonalData {
     #[serde(default)]
     /// [(name, url), ]
     webpage: Vec<(String, String)>,
+}
+
+impl PersonalData {
+    fn to_latex(&self) -> String {
+        let mut lines = Vec::new();
+        lines.push("% personal data".into());
+        let names = &self.name.split(' ').collect::<Vec<_>>();
+        let first_name = names[0];
+        lines.push(format!("\\firstname{{\\LARGE {first_name}}}"));
+        if let Some(last_name) = names.get(1) {
+            lines.push(format!("\\familyname{{\\LARGE {last_name}}}"));
+        }
+        if let Some(title) = &self.title {
+            lines.push(format!("\\title{{{}}}", title));
+        }
+        for t in &self.mobile {
+            lines.push(format!("\\mobile{{{}}}", t));
+        }
+        for e in &self.email {
+            lines.push(format!("\\email{{{}}}", e.mail));
+        }
+        // socials
+        if let Some(e) = &self.github {
+            lines.push(format!("\\social[github]{{{e}}}"))
+        }
+        if let Some(e) = &self.gitlab {
+            lines.push(format!("\\social[gitlab]{{{e}}}"))
+        }
+        if let Some(e) = &self.linkedin {
+            lines.push(format!("\\social[linkedin]{{{e}}}"))
+        }
+        if let Some(e) = &self.twitter {
+            lines.push(format!("\\social[twitter]{{{e}}}"))
+        }
+        for (n, u) in &self.webpage {
+            lines.push(format!("\\extrainfo{{\\homepagesymbol {n} \\url{{{u}}}}}"));
+        }
+        lines.join("\n")
+    }
 }
 
 #[derive(Debug)]
@@ -312,45 +376,6 @@ impl List {
     }
 }
 
-impl PersonalData {
-    fn to_latex(&self) -> String {
-        let mut lines = Vec::new();
-        lines.push("% personal data".into());
-        let names = &self.name.split(' ').collect::<Vec<_>>();
-        let first_name = names[0];
-        lines.push(format!("\\firstname{{\\LARGE {first_name}}}"));
-        if let Some(last_name) = names.get(1) {
-            lines.push(format!("\\familyname{{\\LARGE {last_name}}}"));
-        }
-        if let Some(title) = &self.title {
-            lines.push(format!("\\title{{{}}}", title));
-        }
-        for t in &self.mobile {
-            lines.push(format!("\\mobile{{{}}}", t));
-        }
-        for e in &self.email {
-            lines.push(format!("\\email{{{}}}", e));
-        }
-        // socials
-        if let Some(e) = &self.github {
-            lines.push(format!("\\social[github]{{{e}}}"))
-        }
-        if let Some(e) = &self.gitlab {
-            lines.push(format!("\\social[gitlab]{{{e}}}"))
-        }
-        if let Some(e) = &self.linkedin {
-            lines.push(format!("\\social[linkedin]{{{e}}}"))
-        }
-        if let Some(e) = &self.twitter {
-            lines.push(format!("\\social[twitter]{{{e}}}"))
-        }
-        for (n, u) in &self.webpage {
-            lines.push(format!("\\extrainfo{{\\homepagesymbol {n} \\url{{{u}}}}}"));
-        }
-        lines.join("\n")
-    }
-}
-
 mod cv_date {
     use chrono::{DateTime, TimeZone, Utc};
     use serde::{self, Deserialize, Deserializer, Serializer};
@@ -438,7 +463,7 @@ mod tests {
             "name": "Jessica Meyer",
             "title": "Environmental manager",
             "mobile": ["+32 56 19 01", "+32 56 19 04"],
-            "email": ["nom@example.com", "nom@example.org"],
+            "email": [{"mail": "nom@example.com"}, {"mail": "nom@example.org"}],
             "github": "example",
             "webpage": [["example", "www.example.com"]]
         }"#;
@@ -612,5 +637,25 @@ mod tests {
             s["cloud computing"]["azure"],
             CVDuration { year: 0, month: 10 }
         );
+    }
+
+    #[test]
+    fn write_email() {
+        let data = r#"
+        [
+            {
+                "name": "John",
+                "mail": "j@doe.org"
+            },
+            {
+                "mail": "blah@example.com"
+            }
+        ]
+        "#;
+        let emails: Vec<CVEmail> = serde_json::from_str(&data).unwrap();
+        let tex: Vec<String> = emails.iter().map(|e| e.to_latex()).collect();
+        assert!(tex[0].contains("mailto:"));
+        assert!(tex[0].contains("John"));
+        assert!(tex[1].contains("mailto:"));
     }
 }
