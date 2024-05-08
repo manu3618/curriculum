@@ -51,20 +51,20 @@ impl CVEntry {
         };
         let max_date_len = &self.subentries.iter().map(|e| e.get_dates().len()).max();
         for subentry in &self.subentries {
-            descr.push_str("%\n");
+            descr.push_str("\n");
             if let Some(margin) = max_date_len {
                 descr.push_str(&format!("\\hspace*{{-{}ex}}", 21.5 - *margin as f32));
             }
             descr.push_str(&subentry.to_latex());
         }
         format!(
-            "\\cventry{{{}}}{{{}}}{{{}}}{{{}}}{{{}}}{{{}\n}}",
+            "\\cventry{{{}}}{{{}}}{{{}}}{{{}}}{{{}}}{{%\n{}%\n}}",
             &self.get_dates(),
             &self.degree, // title
             &self.institution,
             &self.city.clone().unwrap_or("".into()),
             &self.grade.clone().unwrap_or("".into()),
-            descr,
+            descr.trim(),
         )
     }
 
