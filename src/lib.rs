@@ -8,6 +8,16 @@ use std::path::Path;
 
 static DATA_DIR: &str = "data";
 
+/// list of oredered skill categories
+const SKILL_CATEGORIES: &[&str] = &[
+    "prorgamming languages",
+    "version control",
+    "database",
+    "cloud computing",
+    "CI/CD",
+    "other",
+];
+
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct CVEntry {
     #[serde(default)]
@@ -28,6 +38,66 @@ struct CVEntry {
     grade: Option<String>,
     #[serde(default)]
     description: Option<EntryDescription>,
+}
+
+impl CVEntry {
+    fn to_latex(&self) -> String {
+        let mut dates: Vec<String> = Vec::new();
+        if let Some(b) = self.beginning {
+            dates.push(format!("{}", b.format("%Y")))
+        };
+        if let Some(e) = self.end {
+            dates.push(format!("{}", e.format("%Y")))
+        };
+        let descr = match &self.description {
+            Some(d) => d.to_latex(),
+            None => "".into(),
+        };
+        format!(
+            "\\cventry{{{}}}{{{}}}{{{}}}{{{}}}{{{}}}{{{}}}",
+            dates.join("--"),
+            &self.degree, // title
+            &self.institution,
+            &self.city.clone().unwrap_or("".into()),
+            &self.grade.clone().unwrap_or("".into()),
+            descr,
+        )
+    }
+
+    /// get skills
+    /// {category:Vec<skills>}
+    fn extract_skills(&self) -> HashMap<&str, Vec<String>> {
+        if let Some(desc) = &self.description {
+            desc.extract_skills()
+        } else {
+            HashMap::new()
+        }
+    }
+
+    /// return duration of this entry
+    fn duration(&self) -> Option<Duration> {
+        if let Some(b) = &self.beginning {
+            if let Some(e) = &self.end {
+                Some(*e - b)
+            } else {
+                Some(Utc::now() - b)
+            }
+        } else {
+            None
+        }
+    }
+
+    fn cv_duration(&self) -> Option<CVDuration> {
+        if let Some(duration) = &self.duration() {
+            let duration: u32 = duration.num_days() as u32;
+            let year = duration / 365;
+            let remaining_days = duration % 365;
+            let month = (remaining_days + 15) / 30;
+            Some(CVDuration { year, month })
+        } else {
+            None
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -52,6 +122,35 @@ struct EntryDescription {
     other: Vec<String>,
 }
 
+impl EntryDescription {
+    fn extract_skills(&self) -> HashMap<&str, Vec<String>> {
+        let mut skills = HashMap::new();
+        skills.insert("programming languages", self.programming.clone());
+        skills.insert("version control", self.version.clone());
+        skills.insert("database", self.database.clone());
+        skills.insert("cloud computing", self.cloud.clone());
+        skills.insert("CI/CD", self.ci.clone());
+        skills.insert("other", self.other.clone());
+        skills.retain(|_, v| !&v.is_empty());
+        skills
+    }
+
+    fn to_latex(&self) -> String {
+        let mut lines: Vec<String> = Vec::new();
+        lines.push("%".into());
+        lines.push((&self.context).into());
+        lines.push("\\begin{description}".into());
+        let skills = &self.extract_skills();
+        for name in SKILL_CATEGORIES {
+            if let Some(list) = skills.get(name) {
+                lines.push(format!("[{}] {}", name, list.join(", ")).into())
+            }
+        }
+        lines.push("\\end{description}".into());
+        lines.join("\n")
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Curriculum {
     #[serde(rename = "personal data")]
@@ -60,6 +159,45 @@ pub struct Curriculum {
     experiences: Vec<CVEntry>,
 }
 
+impl Curriculum {
+    /// Generate the LaTeX corresponding to the whole document
+    pub fn to_latex(&self) -> Result<String> {
+        let mut output = Vec::new();
+        let preamb = fs::read(Path::new(DATA_DIR).join("preambule.tex"))?;
+        output.push(String::from_utf8(preamb)?);
+
+        // TODO replace with first page
+        output.push(self.personal_data.to_latex());
+        output.push("\n\\begin{document}\n".into());
+
+        output.push("\\section{Proffesional experience}".into());
+        for experience in &self.experiences {
+            output.push(experience.to_latex());
+            output.push("\n".into());
+        }
+
+        output.push("\\end{document}".into());
+        Ok(output.join("\n"))
+    }
+
+    /// Get skills from entries
+    /// {category: {skill: duration}}
+    fn get_skills(&self) -> HashMap<&str, HashMap<String, CVDuration>> {
+        let mut ret_skills = HashMap::new();
+        for xp in &self.experiences {
+            let duration = &xp.cv_duration().unwrap_or_default();
+            let entry_skills = xp.extract_skills();
+            for (categ, ref skills) in entry_skills {
+                let ret_categ: &mut HashMap<String, _> = ret_skills.entry(categ).or_default();
+                for skill in skills {
+                    let s: &mut CVDuration = ret_categ.entry(skill.clone()).or_default();
+                    *s = s.clone() + duration.clone();
+                }
+            }
+        }
+        ret_skills
+    }
+}
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct PersonalData {
     name: String,
@@ -158,53 +296,6 @@ impl Add for CVDuration {
     }
 }
 
-impl CVEntry {
-    fn to_latex(&self) -> String {
-        todo!()
-    }
-
-    /// get skills
-    /// {category:Vec<skills>}
-    fn extract_skills(&self) -> HashMap<&str, Vec<String>> {
-        let mut skills = HashMap::new();
-        if let Some(desc) = &self.description {
-            skills.insert("programming languages", desc.programming.clone());
-            skills.insert("version control", desc.version.clone());
-            skills.insert("databases", desc.database.clone());
-            skills.insert("cloud computing", desc.cloud.clone());
-            skills.insert("CI/CD", desc.ci.clone());
-            skills.insert("other", desc.other.clone());
-        }
-        skills.retain(|_, v| !&v.is_empty());
-        skills
-    }
-
-    /// return duration of this entry
-    fn duration(&self) -> Option<Duration> {
-        if let Some(b) = &self.beginning {
-            if let Some(e) = &self.end {
-                Some(*e - b)
-            } else {
-                Some(Utc::now() - b)
-            }
-        } else {
-            None
-        }
-    }
-
-    fn cv_duration(&self) -> Option<CVDuration> {
-        if let Some(duration) = &self.duration() {
-            let duration: u32 = duration.num_days() as u32;
-            let year = duration / 365;
-            let remaining_days = duration % 365;
-            let month = (remaining_days + 15) / 30;
-            Some(CVDuration { year, month })
-        } else {
-            None
-        }
-    }
-}
-
 impl List {
     fn to_latex(&self) -> String {
         format!(
@@ -218,12 +309,6 @@ impl List {
                 .collect::<Vec<_>>()
                 .join("\n")
         )
-    }
-}
-
-impl EntryDescription {
-    fn to_latex(&self) -> String {
-        todo!()
     }
 }
 
@@ -263,36 +348,6 @@ impl PersonalData {
             lines.push(format!("\\extrainfo{{\\homepagesymbol {n} \\url{{{u}}}}}"));
         }
         lines.join("\n")
-    }
-}
-
-impl Curriculum {
-    /// Generate the LaTeX corresponding to the whole document
-    pub fn to_latex(&self) -> Result<String> {
-        let mut output = Vec::new();
-        let preamb = fs::read(Path::new(DATA_DIR).join("preambule.tex"))?;
-        output.push(String::from_utf8(preamb)?);
-
-        output.push("\\end{document}".into());
-        Ok(output.join("\n"))
-    }
-
-    /// Get skills from entries
-    /// {category: {skill: duration}}
-    fn get_skills(&self) -> HashMap<&str, HashMap<String, CVDuration>> {
-        let mut ret_skills = HashMap::new();
-        for xp in &self.experiences {
-            let duration = &xp.cv_duration().unwrap_or_default();
-            let entry_skills = xp.extract_skills();
-            for (categ, ref skills) in entry_skills {
-                let ret_categ: &mut HashMap<String, _> = ret_skills.entry(categ).or_default();
-                for skill in skills {
-                    let s: &mut CVDuration = ret_categ.entry(skill.clone()).or_default();
-                    *s = s.clone() + duration.clone();
-                }
-            }
-        }
-        ret_skills
     }
 }
 
@@ -392,7 +447,7 @@ mod tests {
     }
 
     #[test]
-    fn decription_tex() {
+    fn description_tex() {
         let data = r#"
         {
             "context": "some super context",
@@ -401,6 +456,7 @@ mod tests {
         "#;
         let entry: EntryDescription = serde_json::from_str(&data).unwrap();
         let result = entry.to_latex();
+        // assert!(false);
     }
 
     #[test]
