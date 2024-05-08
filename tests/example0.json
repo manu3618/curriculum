@@ -2,7 +2,9 @@
     "personal data": {
         "name": "Jessica Goodwin",
         "title": "Environmental manager",
-        "mobile": ["525-450-5504x921"]
+        "mobile": [
+            "525-450-5504x921"
+        ]
     },
     "education": [
         {
@@ -53,7 +55,9 @@
             "end": "1990-12-17",
             "institution": "Sparks Inc",
             "city": "South Margaretville",
-            "description": {"context": "some random description"}
+            "description": {
+                "context": "some random description"
+            }
         },
         {
             "start": "2004-04-09",
@@ -65,7 +69,9 @@
             "end": "2007-06-06",
             "degree": "4",
             "institution": "Smith-Terry",
-            "description": {"context": "some random description"}
+            "description": {
+                "context": "some random description"
+            }
         }
     ]
 }

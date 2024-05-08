@@ -50,7 +50,9 @@
             "end": "1988-11-02",
             "institution": "Bennett-Wallace",
             "city": "Lake Whitneyborough",
-            "description": {"context": "some random description"}
+            "description": {
+                "context": "some random description"
+            }
         },
         {
             "start": "2023-04-04",
@@ -63,7 +65,9 @@
             "end": "2016-02-02",
             "degree": "Good one",
             "institution": "Anderson LLC",
-            "description": {"context": "Pretty good university"}
+            "description": {
+                "context": "Pretty good university"
+            }
         }
     ],
     "experiences": [
@@ -87,7 +91,9 @@
             "start": "2013-10-24",
             "end": "1984-12-25",
             "institution": "Horton, Richardson and Salinas",
-            "description": {"context": "some random description"}
+            "description": {
+                "context": "some random description"
+            }
         },
         {
             "start": "1992-01-12",
@@ -105,7 +111,9 @@
             "start": "2021-01-10",
             "end": "1980-11-10",
             "institution": "Hurley, Smith and Mack",
-            "description": {"context": "some random description"}
+            "description": {
+                "context": "some random description"
+            }
         },
         {
             "start": "1992-05-06",
