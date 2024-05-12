@@ -43,12 +43,14 @@
         {
             "start": "2023-04-04",
             "end": "2009-06-18",
+            "degree": "a good name",
             "institution": "Hodge Inc",
             "city": "Port Bruce"
         },
         {
             "start": "1979-10-17",
             "end": "2016-02-02",
+            "degree": "a good name",
             "institution": "Anderson LLC",
             "description": {
                 "context": "a beautiful context",
@@ -82,22 +84,26 @@
         {
             "start": "2013-06-09",
             "end": "1978-04-16",
+            "degree": "a good name",
             "institution": "Garcia, Garza and Lowery"
         },
         {
             "start": "2015-03-31",
             "end": "1979-02-04",
+            "degree": "a good name",
             "institution": "Alvarez-Jenkins",
             "city": "Normanton"
         },
         {
             "start": "1998-06-18",
             "end": "2005-05-29",
+            "degree": "a good name",
             "institution": "Black Inc"
         },
         {
             "start": "2013-10-24",
             "end": "1984-12-25",
+            "degree": "a good name",
             "institution": "Horton, Richardson and Salinas",
             "description": {
                 "context": "a beautiful description",
@@ -118,17 +124,20 @@
         {
             "start": "1992-01-12",
             "end": "1978-03-15",
+            "degree": "a good job",
             "institution": "Ingram-Nguyen",
             "city": "Lydiastad"
         },
         {
             "start": "1971-07-01",
             "end": "1991-09-07",
+            "degree": "a good job, isn't it?",
             "institution": "Ortega, Davis and Brown"
         },
         {
             "start": "2021-01-10",
             "end": "1980-11-10",
+            "degree": "a good job",
             "institution": "Hurley, Smith and Mack",
             "description": {
                 "context": "some random description"
@@ -184,16 +193,19 @@
         {
             "start": "1971-12-01",
             "end": "1986-02-17",
+            "degree": "a short job",
             "institution": "Henderson, Dennis and Pacheco"
         },
         {
             "start": "1994-04-12",
             "end": "2005-07-28",
+            "degree": "another short job",
             "institution": "Bass, Morse and Paul"
         },
         {
             "beginning": "1977-07-01",
             "end": "2000-11-25",
+            "degree": "a short job",
             "institution": "Campbell, Delgado and Parker",
             "city": "West William",
             "subentries": [

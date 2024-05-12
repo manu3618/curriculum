@@ -22,7 +22,7 @@ fn main() -> Result<()> {
     // dbg!(&cv);
     let tex_data = cv.to_latex()?;
     let tex_path = path.with_extension("tex");
-    println!("wrinting {}", tex_path.display());
+    println!("writing {}", tex_path.display());
     let _ = fs::write(&tex_path, tex_data);
 
     #[cfg(feature = "pdf")]

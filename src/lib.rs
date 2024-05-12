@@ -8,7 +8,7 @@ use std::path::Path;
 
 static DATA_DIR: &str = "data";
 
-/// list of oredered skill categories
+/// list of ordered skill categories
 const SKILL_CATEGORIES: &[&str] = &[
     "prorgamming languages",
     "version control",
@@ -26,7 +26,7 @@ struct CVEntry {
     #[serde(default)]
     #[serde(with = "cv_date")]
     end: Option<DateTime<Utc>>,
-    /// degree or title
+    /// degree or title or name
     #[serde(default)]
     degree: String,
     /// insititution or company
