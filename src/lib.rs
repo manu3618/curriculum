@@ -2,11 +2,9 @@ use anyhow::Result;
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::fs;
 use std::ops::Add;
-use std::path::Path;
 
-static DATA_DIR: &str = "data";
+static PREAMBULE: &str = include_str!("../data/preambule.tex");
 
 /// list of ordered skill categories
 const SKILL_CATEGORIES: &[&str] = &[
@@ -17,6 +15,15 @@ const SKILL_CATEGORIES: &[&str] = &[
     "CI/CD",
     "other",
 ];
+
+#[derive(Debug)]
+enum Industry {
+    Energy,
+    Telecommunications,
+    Health,
+    Insurance,
+    Automotive,
+}
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct CVEntry {
@@ -230,7 +237,7 @@ impl Curriculum {
     /// Generate the LaTeX corresponding to the whole document
     pub fn to_latex(&self) -> Result<String> {
         let mut output = Vec::new();
-        let preamb = fs::read(Path::new(DATA_DIR).join("preambule.tex"))?;
+        let preamb = PREAMBULE.into();
         output.push(String::from_utf8(preamb)?);
 
         // TODO replace with first page
@@ -397,6 +404,12 @@ impl CVLanguage {
 #[derive(Debug)]
 struct List(Vec<String>);
 
+/// create the first page
+///
+/// The fisrt page should sum up the resume, including
+/// * technical knowledge (ventilated by experience?)
+/// * functional knowledge
+/// * industry knowledge (in which industry your work in)
 fn make_first_page() -> String {
     todo!()
 }

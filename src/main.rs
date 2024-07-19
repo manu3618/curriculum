@@ -19,7 +19,6 @@ fn main() -> Result<()> {
 
     let content = fs::read_to_string(path)?;
     let cv: curriculum::Curriculum = serde_json::from_str(&content)?;
-    // dbg!(&cv);
     let tex_data = cv.to_latex()?;
     let tex_path = path.with_extension("tex");
     println!("writing {}", tex_path.display());
