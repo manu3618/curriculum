@@ -258,6 +258,13 @@ impl Curriculum {
             output.push("\n".into());
         }
 
+        output.push("\\section{Languages}".into());
+        for language in &self.languages {
+            output.push(language.to_latex());
+            output.push("\n".into());
+        }
+
+
         output.push("\\end{document}".into());
         Ok(output.join("\n"))
     }
