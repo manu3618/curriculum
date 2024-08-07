@@ -51,18 +51,26 @@ struct CVEntry {
 
 impl CVEntry {
     /// Produce corresponding LaTeX
-    fn to_latex(&self) -> String {
+    fn to_latex(&self, width: Option<f32>) -> String {
         let mut descr = match &self.description {
             Some(d) => d.to_latex(),
             None => "".into(),
         };
+        if let Some(width) = width {
+            descr = format!(
+                "\\begin{{minipage}}{{\\linewidth-{}ex}}\n{}\n\\end{{minipage}}",
+                width,
+                descr.trim()
+            );
+        }
         let max_date_len = &self.subentries.iter().map(|e| e.get_dates().len()).max();
         for subentry in &self.subentries {
             descr.push_str("\\\\\n");
-            if let Some(margin) = max_date_len {
-                descr.push_str(&format!("\\hspace*{{-{}ex}}", 21.5 - *margin as f32));
+            let margin = max_date_len.as_ref().map(|d| 21.5 - *d as f32);
+            if margin.is_some() {
+                descr.push_str(&format!("\\hspace*{{-{}ex}}", margin.unwrap()));
             }
-            descr.push_str(&subentry.to_latex());
+            descr.push_str(&subentry.to_latex(margin));
         }
         format!(
             "\\cventry{{{}}}{{{}}}{{{}}}{{{}}}{{{}}}{{%\n{}%\n}}",
@@ -248,13 +256,13 @@ impl Curriculum {
 
         output.push("\\section{Education}".into());
         for edu in &self.education {
-            output.push(edu.to_latex());
+            output.push(edu.to_latex(None));
             output.push("\n".into());
         }
 
         output.push("\\section{Proffesional experience}".into());
         for experience in &self.experiences {
-            output.push(experience.to_latex());
+            output.push(experience.to_latex(None));
             output.push("\n".into());
         }
 
@@ -882,7 +890,7 @@ mod tests {
         }
         "#;
         let entry: CVEntry = serde_json::from_str(&data).unwrap();
-        let tex = entry.to_latex();
+        let tex = entry.to_latex(None);
         assert_eq!(
             tex.chars().filter(|&x| x == '{').count(),
             tex.chars().filter(|&x| x == '}').count()
