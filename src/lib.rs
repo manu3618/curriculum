@@ -397,7 +397,7 @@ impl CVLanguage {
     fn to_latex(&self) -> String {
         format!(
             "\\cvlanguage{{{}}}{{{}}}{{{}}}",
-            self.language, self.level, self.level
+            self.language, self.level, self.comment
         )
     }
 }
