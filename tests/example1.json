@@ -94,5 +94,16 @@
             "end": "2005-07-28",
             "institution": "Bass, Morse and Paul"
         }
+    ],
+    "languages": [
+        {
+            "language": "Esperanto",
+            "level": "B2",
+            "comment": "Lived there few years ago."
+        },
+        {
+            "language": "English",
+            "level": "Native"
+        }
     ]
 }
