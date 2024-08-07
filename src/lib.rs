@@ -58,7 +58,7 @@ impl CVEntry {
         };
         let max_date_len = &self.subentries.iter().map(|e| e.get_dates().len()).max();
         for subentry in &self.subentries {
-            descr.push('\n');
+            descr.push_str("\\\\\n");
             if let Some(margin) = max_date_len {
                 descr.push_str(&format!("\\hspace*{{-{}ex}}", 21.5 - *margin as f32));
             }
@@ -263,7 +263,6 @@ impl Curriculum {
             output.push(language.to_latex());
             output.push("\n".into());
         }
-
 
         output.push("\\end{document}".into());
         Ok(output.join("\n"))
