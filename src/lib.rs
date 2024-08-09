@@ -65,7 +65,7 @@ impl CVEntry {
         }
         let max_date_len = &self.subentries.iter().map(|e| e.get_dates().len()).max();
         for subentry in &self.subentries {
-            descr.push_str("\\\\\n");
+            descr.push_str("%\n");
             let margin = max_date_len.as_ref().map(|d| 21.5 - *d as f32);
             if margin.is_some() {
                 descr.push_str(&format!("\\hspace*{{-{}ex}}", margin.unwrap()));
@@ -223,18 +223,29 @@ impl EntryDescription {
     fn to_latex(&self) -> String {
         let mut lines: Vec<String> = Vec::new();
         lines.push("%".into());
-        lines.push(format!("{}\\\\", &self.context));
+        if !self.context.is_empty() {
+            lines.push("% ---- begin context".into());
+            lines.push(format!("{}\\\\", &self.context));
+            lines.push("% ---- end   context".into());
+        }
         if !&self.achievements.is_empty() {
+            lines.push("% ---- begin achievement".into());
             lines.push(List(self.achievements.clone()).get_titled_description("Achievements"));
+            lines.push("% ---- end   achievement".into());
         }
         if !self.team.is_empty() {
-            lines.push(get_titled_description("Team", &self.team))
+            lines.push("% ---- begin team".into());
+            lines.push(get_titled_description("Team", &self.team));
+            lines.push("% ---- end   team".into());
         }
         if !&self.tasks.is_empty() {
-            lines.push(List(self.achievements.clone()).get_titled_description("Tasks"));
+            lines.push("% ---- begin tasks".into());
+            lines.push(List(self.tasks.clone()).get_titled_description("Tasks"));
+            lines.push("% ---- end   tasks".into());
         }
         let skills = &self.extract_skills();
         if !skills.is_empty() {
+            lines.push("% ---- begin skills".into());
             let mut techno = Vec::new();
             techno.push("\\begin{description}".into());
             for name in SKILL_CATEGORIES {
@@ -244,6 +255,7 @@ impl EntryDescription {
             }
             techno.push("\\end{description}".into());
             lines.push(get_titled_description("Technical environnement", &techno.join("\n")));
+            lines.push("% ---- end   skills".into());
         }
         lines.join("\n")
     }
@@ -523,6 +535,7 @@ impl Add for CVDuration {
 fn get_titled_description(title: &str, content: &str) -> String {
     let mut lines = Vec::new();
     lines.push("%".into());
+    lines.push(format!("%%%%%% {title}"));
     lines.push(format!(
         "\\begin{{minipage}}{{0.9\\textwidth}}\\textbf{{{title}}}:\\hfill\\end{{minipage}}"
     ));
@@ -530,6 +543,7 @@ fn get_titled_description(title: &str, content: &str) -> String {
     lines.push("\\begin{minipage}{\\textwidth}".into());
     lines.push(content.into());
     lines.push("\\end{minipage}".into());
+    lines.push(format!("%%%%%% end of {title}"));
     lines.join("\n")
 }
 
