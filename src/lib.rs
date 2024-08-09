@@ -224,9 +224,13 @@ impl EntryDescription {
         let mut lines: Vec<String> = Vec::new();
         lines.push("%".into());
         lines.push((&self.context).into());
-        // TODO: add team
-        // TODO: add tasks
-        // TODO: add achievements
+        if !self.team.is_empty() {
+            lines.push(get_titled_description("Team", &self.team))
+        }
+        if !&self.tasks.is_empty() {
+            lines.push(List(self.achievements.clone()).get_titled_description("Tasks"));
+        }
+
         if !&self.achievements.is_empty() {
             lines.push(List(self.achievements.clone()).get_titled_description("Achievements"));
         }
@@ -514,6 +518,18 @@ impl Add for CVDuration {
     }
 }
 
+/// Get LaTeX for small paragraph to be inserted in job description
+fn get_titled_description(title: &str, content: &str) -> String {
+    let mut lines = Vec::new();
+    lines.push("\\vspace{{0.5ex}}".into());
+    lines.push(format!(
+        "\\begin{{minipage}}{{0.9\\textwidth}}\\textbf{{{title}}}:\\hfill"
+    ));
+    lines.push(content.into());
+    lines.push("\\end{minipage}".into());
+    lines.join("\n")
+}
+
 impl List {
     fn to_latex(&self) -> String {
         format!(
@@ -529,12 +545,7 @@ impl List {
         )
     }
     fn get_titled_description(&self, title: &str) -> String {
-        let mut lines = Vec::new();
-        lines.push("\\vspace{{0.5ex}}".into());
-        lines.push(format!("\\begin{{minipage}}{{0.9\\textwidth}}\\textbf{{{title}}}:\\hfill"));
-        lines.push(self.to_latex());
-        lines.push("\\end{{minipage}}".into());
-        lines.join("\n")
+        get_titled_description(title, &self.to_latex())
     }
 }
 
