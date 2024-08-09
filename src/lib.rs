@@ -182,6 +182,13 @@ fn add_skillsets<'a, I, S>(
 struct EntryDescription {
     #[serde(default)]
     context: String,
+    #[serde(default)]
+    achievements: Vec<String>,
+    #[serde(default)]
+    team: String,
+    /// task and responsabilities
+    #[serde(default)]
+    tasks: Vec<String>,
     /// technologies
     /// programming language
     #[serde(default)]
@@ -217,6 +224,12 @@ impl EntryDescription {
         let mut lines: Vec<String> = Vec::new();
         lines.push("%".into());
         lines.push((&self.context).into());
+        // TODO: add team
+        // TODO: add tasks
+        // TODO: add achievements
+        if !&self.achievements.is_empty() {
+            lines.push(List(self.achievements.clone()).get_titled_description("Achievements"));
+        }
         let skills = &self.extract_skills();
         if !skills.is_empty() {
             lines.push("\\begin{description}".into());
@@ -514,6 +527,14 @@ impl List {
                 .collect::<Vec<_>>()
                 .join("\n")
         )
+    }
+    fn get_titled_description(&self, title: &str) -> String {
+        let mut lines = Vec::new();
+        lines.push("\\vspace{{0.5ex}}".into());
+        lines.push(format!("\\begin{{minipage}}{{0.9\\textwidth}}\\textbf{{{title}}}:\\hfill"));
+        lines.push(self.to_latex());
+        lines.push("\\end{{minipage}}".into());
+        lines.join("\n")
     }
 }
 

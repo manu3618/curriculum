@@ -103,6 +103,21 @@
                     "description": {
                         "context": "A good context"
                     }
+                },
+                {
+                    "beginning": "2013-06",
+                    "degree": "Consultant",
+                    "institution": "client",
+                    "description": {
+                        "context": "we don't care",
+                        "team": "many workers",
+                        "tasks": [
+                            "first task",
+                            "long long and really long. I mean longer and even longer tasks whose description should fit in several lines, maybe two or more. I won't count the number of words for this task",
+                            "third task"
+                        ],
+                        "achievements": ["many things"]
+                    }
                 }
             ]
         }
