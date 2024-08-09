@@ -8,7 +8,7 @@ static PREAMBULE: &str = include_str!("../data/preambule.tex");
 
 /// list of ordered skill categories
 const SKILL_CATEGORIES: &[&str] = &[
-    "prorgamming languages",
+    "programming languages",
     "version control",
     "database",
     "cloud computing",
@@ -223,26 +223,27 @@ impl EntryDescription {
     fn to_latex(&self) -> String {
         let mut lines: Vec<String> = Vec::new();
         lines.push("%".into());
-        lines.push((&self.context).into());
+        lines.push(format!("{}\\\\", &self.context));
+        if !&self.achievements.is_empty() {
+            lines.push(List(self.achievements.clone()).get_titled_description("Achievements"));
+        }
         if !self.team.is_empty() {
             lines.push(get_titled_description("Team", &self.team))
         }
         if !&self.tasks.is_empty() {
             lines.push(List(self.achievements.clone()).get_titled_description("Tasks"));
         }
-
-        if !&self.achievements.is_empty() {
-            lines.push(List(self.achievements.clone()).get_titled_description("Achievements"));
-        }
         let skills = &self.extract_skills();
         if !skills.is_empty() {
-            lines.push("\\begin{description}".into());
+            let mut techno = Vec::new();
+            techno.push("\\begin{description}".into());
             for name in SKILL_CATEGORIES {
                 if let Some(list) = skills.get(name) {
-                    lines.push(format!("\\item [{}] {}", name, list.join(", ")))
+                    techno.push(format!("\\item [{}] {}", name, list.join(", ")))
                 }
             }
-            lines.push("\\end{description}\n".into());
+            techno.push("\\end{description}".into());
+            lines.push(get_titled_description("Technical environnement", &techno.join("\n")));
         }
         lines.join("\n")
     }
@@ -521,10 +522,12 @@ impl Add for CVDuration {
 /// Get LaTeX for small paragraph to be inserted in job description
 fn get_titled_description(title: &str, content: &str) -> String {
     let mut lines = Vec::new();
-    lines.push("\\vspace{{0.5ex}}".into());
+    lines.push("%".into());
     lines.push(format!(
-        "\\begin{{minipage}}{{0.9\\textwidth}}\\textbf{{{title}}}:\\hfill"
+        "\\begin{{minipage}}{{0.9\\textwidth}}\\textbf{{{title}}}:\\hfill\\end{{minipage}}"
     ));
+    lines.push("\\begin{minipage}{2ex}\\hspace{1ex}\\end{minipage}%".into());
+    lines.push("\\begin{minipage}{\\textwidth}".into());
     lines.push(content.into());
     lines.push("\\end{minipage}".into());
     lines.join("\n")
