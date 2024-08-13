@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::ops::Add;
+use unidecode::unidecode;
 
 static PREAMBULE: &str = include_str!("../data/preambule.tex");
 
@@ -50,14 +51,20 @@ struct CVEntry {
     subentries: Vec<CVEntry>,
 }
 
+/// transform tag in LaTeX-safe string
+fn normalize_tag(tag: &str) -> String {
+    unidecode(tag).replace(&[' ', ',', '-'][..], "").into()
+}
+
 impl CVEntry {
     /// Produce corresponding LaTeX
     fn to_latex(&self, width: Option<f32>, tags: &mut HashSet<String>) -> String {
         let mut descr = match &self.description {
             Some(d) => {
-                let tag = &self.institution.replace(&[' ', ',', '-'][..], "");
-                tags.insert(tag.into());
-                format!("\\if{tag}{{%\n{}\n}}% end of {tag}", d.to_latex(tags))},
+                let tag = normalize_tag(&self.institution.clone());
+                tags.insert(tag.clone());
+                format!("\\if{tag}% beginning of {tag}\n{}\n\\fi% end of {tag}", d.to_latex(tags))
+            }
             None => "".into(),
         };
         if let Some(width) = width {
@@ -229,9 +236,9 @@ impl EntryDescription {
         lines.push("%".into());
         if !self.context.is_empty() {
             lines.push("% ---- begin context".into());
-            lines.push("\\ifcontext{".into());
+            lines.push("\\ifcontext{%".into());
             lines.push(format!("{}\\\\", &self.context));
-            lines.push("}% ---- end   context".into());
+            lines.push("}\\fi% ---- end   context".into());
             tags.insert("context".into());
         }
         if !&self.achievements.is_empty() {
@@ -283,7 +290,7 @@ pub struct Curriculum {
 /// create latex corresponding to conditional tag compilation
 fn conditional_tags(tags: HashSet<String>) -> String {
     tags.iter()
-        .map(|tag| format!("\\newif\\if{tag}\n\\{tag}false\n\\{tag}true\n%"))
+        .map(|tag| format!("\\newif\\if{tag}\n\\{tag}false\n\\{tag}true\n"))
         .collect::<Vec<_>>()
         .join("\n")
 }
@@ -556,7 +563,7 @@ impl Add for CVDuration {
 
 /// Get LaTeX for small paragraph to be inserted in job description
 fn get_titled_description(title: &str, content: &str, tags: &mut HashSet<String>) -> String {
-    let tag = title.replace(&[' ', ',', '-'][..], "");
+    let tag = normalize_tag(title.into());
     tags.insert(tag.clone());
     let mut lines = Vec::new();
     lines.push("%".into());
@@ -569,7 +576,7 @@ fn get_titled_description(title: &str, content: &str, tags: &mut HashSet<String>
     lines.push("\\begin{minipage}{\\textwidth}".into());
     lines.push(content.into());
     lines.push("\\end{minipage}".into());
-    lines.push("}%".into());
+    lines.push("}\\fi%".into());
     lines.push(format!("%%%%%% end of {title}"));
     lines.join("\n")
 }
