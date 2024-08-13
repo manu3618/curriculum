@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::ops::Add;
+use unidecode::unidecode;
 
 static PREAMBULE: &str = include_str!("../data/preambule.tex");
 
@@ -50,14 +51,20 @@ struct CVEntry {
     subentries: Vec<CVEntry>,
 }
 
+/// transform tag in LaTeX-safe string
+fn normalize_tag(tag: &str) -> String {
+    unidecode(tag).replace(&[' ', ',', '-'][..], "").into()
+}
+
 impl CVEntry {
     /// Produce corresponding LaTeX
     fn to_latex(&self, width: Option<f32>, tags: &mut HashSet<String>) -> String {
         let mut descr = match &self.description {
             Some(d) => {
-                let tag = &self.institution.replace(&[' ', ',', '-'][..], "");
-                tags.insert(tag.into());
-                format!("\\if{tag}{{%\n{}\n}}% end of {tag}", d.to_latex(tags))},
+                let tag = normalize_tag(&self.institution.clone());
+                tags.insert(tag.clone());
+                format!("\\if{tag}{{%\n{}\n}}% end of {tag}", d.to_latex(tags))
+            }
             None => "".into(),
         };
         if let Some(width) = width {
@@ -556,7 +563,7 @@ impl Add for CVDuration {
 
 /// Get LaTeX for small paragraph to be inserted in job description
 fn get_titled_description(title: &str, content: &str, tags: &mut HashSet<String>) -> String {
-    let tag = title.replace(&[' ', ',', '-'][..], "");
+    let tag = normalize_tag(title.into());
     tags.insert(tag.clone());
     let mut lines = Vec::new();
     lines.push("%".into());
