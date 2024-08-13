@@ -2,6 +2,7 @@ use anyhow::Result;
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::ops::Add;
 
 static PREAMBULE: &str = include_str!("../data/preambule.tex");
@@ -51,9 +52,12 @@ struct CVEntry {
 
 impl CVEntry {
     /// Produce corresponding LaTeX
-    fn to_latex(&self, width: Option<f32>) -> String {
+    fn to_latex(&self, width: Option<f32>, tags: &mut HashSet<String>) -> String {
         let mut descr = match &self.description {
-            Some(d) => d.to_latex(),
+            Some(d) => {
+                let tag = &self.institution.replace(&[' ', ',', '-'][..], "");
+                tags.insert(tag.into());
+                format!("\\if{tag}{{%\n{}\n}}% end of {tag}", d.to_latex(tags))},
             None => "".into(),
         };
         if let Some(width) = width {
@@ -70,7 +74,7 @@ impl CVEntry {
             if margin.is_some() {
                 descr.push_str(&format!("\\hspace*{{-{}ex}}", margin.unwrap()));
             }
-            descr.push_str(&subentry.to_latex(margin));
+            descr.push_str(&subentry.to_latex(margin, tags));
         }
         format!(
             "\\cventry{{{}}}{{{}}}{{{}}}{{{}}}{{{}}}{{%\n{}%\n}}",
@@ -172,7 +176,7 @@ fn add_skillsets<'a, I, S>(
         let cat = acc.entry(category).or_default();
         for (skill, duration) in skills {
             cat.entry(skill.into())
-                .and_modify(|d| *d = *d + duration)
+                .and_modify(|d| *d += duration)
                 .or_insert(duration);
         }
     }
@@ -220,27 +224,28 @@ impl EntryDescription {
         skills
     }
 
-    fn to_latex(&self) -> String {
+    fn to_latex(&self, tags: &mut HashSet<String>) -> String {
         let mut lines: Vec<String> = Vec::new();
         lines.push("%".into());
         if !self.context.is_empty() {
             lines.push("% ---- begin context".into());
+            lines.push("\\ifcontext{".into());
             lines.push(format!("{}\\\\", &self.context));
-            lines.push("% ---- end   context".into());
+            lines.push("}% ---- end   context".into());
+            tags.insert("context".into());
         }
         if !&self.achievements.is_empty() {
-            lines.push("% ---- begin achievement".into());
-            lines.push(List(self.achievements.clone()).get_titled_description("Achievements"));
-            lines.push("% ---- end   achievement".into());
+            lines
+                .push(List(self.achievements.clone()).get_titled_description("Achievements", tags));
         }
         if !self.team.is_empty() {
             lines.push("% ---- begin team".into());
-            lines.push(get_titled_description("Team", &self.team));
+            lines.push(get_titled_description("Team", &self.team, tags));
             lines.push("% ---- end   team".into());
         }
         if !&self.tasks.is_empty() {
             lines.push("% ---- begin tasks".into());
-            lines.push(List(self.tasks.clone()).get_titled_description("Tasks"));
+            lines.push(List(self.tasks.clone()).get_titled_description("Tasks", tags));
             lines.push("% ---- end   tasks".into());
         }
         let skills = &self.extract_skills();
@@ -254,7 +259,11 @@ impl EntryDescription {
                 }
             }
             techno.push("\\end{description}".into());
-            lines.push(get_titled_description("Technical environnement", &techno.join("\n")));
+            lines.push(get_titled_description(
+                "Technical environnement",
+                &techno.join("\n"),
+                tags,
+            ));
             lines.push("% ---- end   skills".into());
         }
         lines.join("\n")
@@ -271,28 +280,38 @@ pub struct Curriculum {
     languages: Vec<CVLanguage>,
 }
 
+/// create latex corresponding to conditional tag compilation
+fn conditional_tags(tags: HashSet<String>) -> String {
+    tags.iter()
+        .map(|tag| format!("\\newif\\if{tag}\n\\{tag}false\n\\{tag}true\n%"))
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 impl Curriculum {
     /// Generate the LaTeX corresponding to the whole document
     pub fn to_latex(&self) -> Result<String> {
         let mut output = Vec::new();
+        let mut tags = HashSet::new(); // conditional compilation tags
         let preamb = PREAMBULE.into();
-        output.push(String::from_utf8(preamb)?);
 
         // TODO replace with first page
         // TODO add skills
+
+        // sections
         output.push(self.personal_data.to_latex());
         output.push("\n\\begin{document}\n".into());
         output.push("\\maketitle".into());
 
         output.push("\\section{Education}".into());
         for edu in &self.education {
-            output.push(edu.to_latex(None));
+            output.push(edu.to_latex(None, &mut tags));
             output.push("\n".into());
         }
 
         output.push("\\section{Proffesional experience}".into());
         for experience in &self.experiences {
-            output.push(experience.to_latex(None));
+            output.push(experience.to_latex(None, &mut tags));
             output.push("\n".into());
         }
 
@@ -301,8 +320,12 @@ impl Curriculum {
             output.push(language.to_latex());
             output.push("\n".into());
         }
-
         output.push("\\end{document}".into());
+
+        // preambule
+        output.insert(0, conditional_tags(tags));
+        output.insert(0, String::from_utf8(preamb)?);
+
         Ok(output.join("\n"))
     }
 
@@ -532,10 +555,13 @@ impl Add for CVDuration {
 }
 
 /// Get LaTeX for small paragraph to be inserted in job description
-fn get_titled_description(title: &str, content: &str) -> String {
+fn get_titled_description(title: &str, content: &str, tags: &mut HashSet<String>) -> String {
+    let tag = title.replace(&[' ', ',', '-'][..], "");
+    tags.insert(tag.clone());
     let mut lines = Vec::new();
     lines.push("%".into());
     lines.push(format!("%%%%%% {title}"));
+    lines.push(format!("\\if{tag}{{%"));
     lines.push(format!(
         "\\begin{{minipage}}{{0.9\\textwidth}}\\textbf{{{title}}}:\\hfill\\end{{minipage}}"
     ));
@@ -543,6 +569,7 @@ fn get_titled_description(title: &str, content: &str) -> String {
     lines.push("\\begin{minipage}{\\textwidth}".into());
     lines.push(content.into());
     lines.push("\\end{minipage}".into());
+    lines.push("}%".into());
     lines.push(format!("%%%%%% end of {title}"));
     lines.join("\n")
 }
@@ -561,8 +588,8 @@ impl List {
                 .join("\n")
         )
     }
-    fn get_titled_description(&self, title: &str) -> String {
-        get_titled_description(title, &self.to_latex())
+    fn get_titled_description(&self, title: &str, tags: &mut HashSet<String>) -> String {
+        get_titled_description(title, &self.to_latex(), tags)
     }
 }
 
@@ -664,6 +691,7 @@ mod tests {
 
     #[test]
     fn description_tex() {
+        let mut tags = HashSet::new();
         let data = r#"
         {
             "context": "some super context",
@@ -671,8 +699,8 @@ mod tests {
         }
         "#;
         let entry: EntryDescription = serde_json::from_str(&data).unwrap();
-        let result = entry.to_latex();
-        // assert!(false);
+        let result = entry.to_latex(&mut tags);
+        assert!(tags.contains("context".into()))
     }
 
     #[test]
@@ -914,12 +942,16 @@ mod tests {
 
     #[test]
     fn subentries() {
+        let mut tags = HashSet::new();
         let data = r#"
         {
             "beginning": "1977-07-01",
             "end": "2000-11-25",
             "institution": "Campbell, Delgado and Parker",
             "city": "West William",
+            "description": {
+                "context": ""
+            },
             "subentries": [
                 {
                     "beginning": "1977-07-01",
@@ -939,7 +971,7 @@ mod tests {
         }
         "#;
         let entry: CVEntry = serde_json::from_str(&data).unwrap();
-        let tex = entry.to_latex(None);
+        let tex = entry.to_latex(None, &mut tags);
         assert_eq!(
             tex.chars().filter(|&x| x == '{').count(),
             tex.chars().filter(|&x| x == '}').count()
@@ -948,5 +980,7 @@ mod tests {
 
         let re = Regex::new("cventry").unwrap();
         assert!(re.captures_iter(&tex).collect::<Vec<_>>().len() > 2);
+        assert!(tags.contains("context"));
+        assert!(tags.contains("CampbellDelgadoandParker"))
     }
 }
