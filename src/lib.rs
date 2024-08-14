@@ -53,7 +53,9 @@ struct CVEntry {
 
 /// transform tag in LaTeX-safe string
 fn normalize_tag(tag: &str) -> String {
-    unidecode(tag).replace(&[' ', ',', '-'][..], "").into()
+    unidecode(tag)
+        .replace(&[' ', ',', '-', '&', '/', '\\'][..], "")
+        .into()
 }
 
 /// transform text with multiple paragraph in LaTeX
@@ -68,7 +70,10 @@ impl CVEntry {
             Some(d) => {
                 let tag = normalize_tag(&self.institution.clone());
                 tags.insert(tag.clone());
-                format!("\\if{tag}% beginning of {tag}\n{}\n\\fi% end of {tag}", d.to_latex(tags))
+                format!(
+                    "\\if{tag}% beginning of {tag}\n{}\n\\fi% end of {tag}",
+                    d.to_latex(tags)
+                )
             }
             None => "".into(),
         };
