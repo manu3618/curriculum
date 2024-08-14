@@ -84,7 +84,7 @@ impl CVEntry {
             descr.push_str(&subentry.to_latex(margin, tags));
         }
         format!(
-            "\\cventry{{{}}}{{{}}}{{{}}}{{{}}}{{{}}}{{%\n{}%\n}}",
+            "\\cventry{{{}}}{{{}}}{{{}}}{{{}}}{{{}}}{{\n{}%\n}}",
             &self.get_dates(),
             &self.degree, // title
             &self.institution,
@@ -236,9 +236,9 @@ impl EntryDescription {
         lines.push("%".into());
         if !self.context.is_empty() {
             lines.push("% ---- begin context".into());
-            lines.push("\\ifcontext{%".into());
+            lines.push("\\ifcontext%".into());
             lines.push(format!("{}\\\\", &self.context));
-            lines.push("}\\fi% ---- end   context".into());
+            lines.push("\\fi% ---- end   context".into());
             tags.insert("context".into());
         }
         if !&self.achievements.is_empty() {
@@ -290,7 +290,7 @@ pub struct Curriculum {
 /// create latex corresponding to conditional tag compilation
 fn conditional_tags(tags: HashSet<String>) -> String {
     tags.iter()
-        .map(|tag| format!("\\newif\\if{tag}\n\\{tag}false\n\\{tag}true\n"))
+        .map(|tag| format!("\\newif\\if{tag}%\n%\\{tag}false\n\\{tag}true\n"))
         .collect::<Vec<_>>()
         .join("\n")
 }
@@ -568,7 +568,7 @@ fn get_titled_description(title: &str, content: &str, tags: &mut HashSet<String>
     let mut lines = Vec::new();
     lines.push("%".into());
     lines.push(format!("%%%%%% {title}"));
-    lines.push(format!("\\if{tag}{{%"));
+    lines.push(format!("\\if{tag}%"));
     lines.push(format!(
         "\\begin{{minipage}}{{0.9\\textwidth}}\\textbf{{{title}}}:\\hfill\\end{{minipage}}"
     ));
@@ -576,7 +576,7 @@ fn get_titled_description(title: &str, content: &str, tags: &mut HashSet<String>
     lines.push("\\begin{minipage}{\\textwidth}".into());
     lines.push(content.into());
     lines.push("\\end{minipage}".into());
-    lines.push("}\\fi%".into());
+    lines.push("\\fi%".into());
     lines.push(format!("%%%%%% end of {title}"));
     lines.join("\n")
 }
