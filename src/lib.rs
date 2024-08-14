@@ -56,6 +56,11 @@ fn normalize_tag(tag: &str) -> String {
     unidecode(tag).replace(&[' ', ',', '-'][..], "").into()
 }
 
+/// transform text with multiple paragraph in LaTeX
+fn format_long_text(text: &str) -> String {
+    text.replace('\n', "\\\\%\n").into()
+}
+
 impl CVEntry {
     /// Produce corresponding LaTeX
     fn to_latex(&self, width: Option<f32>, tags: &mut HashSet<String>) -> String {
@@ -237,7 +242,7 @@ impl EntryDescription {
         if !self.context.is_empty() {
             lines.push("% ---- begin context".into());
             lines.push("\\ifcontext%".into());
-            lines.push(format!("{}\\\\", &self.context));
+            lines.push(format!("{}\\\\", format_long_text(&self.context)));
             lines.push("\\fi% ---- end   context".into());
             tags.insert("context".into());
         }
