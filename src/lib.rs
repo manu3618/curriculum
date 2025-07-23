@@ -54,7 +54,7 @@ struct CVEntry {
 /// transform tag in LaTeX-safe string
 fn normalize_tag(tag: &str) -> String {
     unidecode(tag)
-        .replace(&[' ', ',', '-', '&', '/', '\\'][..], "")
+        .replace(&[' ', ',', '-', '&', '/', '\\', '\''][..], "")
         .into()
 }
 
